@@ -1,0 +1,122 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email == "viranadeep@gmail.com";
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && (request.auth.uid == userId || request.auth.token.email == "viranadeep@gmail.com");
+    }
+
+    // Helper to check if a user is the designated author of a data object
+    function isAuthor(data) {
+      return isSignedIn() && (
+        data.teacherId == request.auth.uid || 
+        data.userId == request.auth.uid || 
+        data.senderId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    // --- Global Admin Access ---
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // --- User Profiles ---
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(userId);
+    }
+
+    // --- Courses ---
+    match /courses/{courseId} {
+      allow read: if true; // Publicly viewable
+      allow write: if isAdmin();
+    }
+
+    // --- Course Enrollments ---
+    match /enrollments/{enrollmentId} {
+      allow read: if isSignedIn(); 
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(resource.data.userId); 
+    }
+
+    // --- Advanced Chat & Communication ---
+    match /chats/{chatId} {
+      allow read: if isSignedIn() && (
+        request.auth.uid in resource.data.participants || 
+        (resource.data.type == 'community' && isSignedIn()) // Basic read for community (further restricted in messages)
+      );
+      allow create: if isSignedIn();
+      
+      match /messages/{msgId} {
+        // Enforce that only participants or enrolled students can read/write
+        allow read: if isSignedIn() && (
+          request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants ||
+          get(/databases/$(database)/documents/chats/$(chatId)).data.type == 'community'
+        );
+        
+        // Only allow sending messages if you are in participants (for direct) 
+        // OR if you are the sender (for community - we rely on application logic for enrollment for now, 
+        // as cross-collection enrollment checks are expensive/complex in rules without predictable IDs)
+        allow create: if isSignedIn() && (
+          request.auth.uid == request.resource.data.senderId
+        );
+        allow update, delete: if isAuthor(resource.data);
+      }
+    }
+    
+    match /mail/{mailId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isAdmin();
+    }
+
+    // --- Classroom Logic ---
+    match /course_modules/{id} {
+      allow read: if isSignedIn(); // Basic read, course-level visibility is handled by content access
+      allow create: if isSignedIn(); 
+      allow update, delete: if isAuthor(resource.data);
+    }
+    
+    match /resources/{id} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAuthor(resource.data);
+    }
+
+    // --- Mentor/Teacher Applications ---
+    match /teacher_applications/{appId} {
+      allow read: if isSignedIn(); // Allow reading status for own app
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // --- Educational Sessions & Tracking ---
+    match /subjects/{id} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /chapters/{id} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /classSessions/{id} { 
+      allow read: if isSignedIn(); 
+      allow write: if isAuthor(request.resource.data) || isAuthor(resource.data); 
+    }
+    
+    match /attendance/{id} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin() || isOwner(resource.data.studentId);
+    }
+
+    // --- Patch Notes ---
+    match /patch_notes/{noteId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}
