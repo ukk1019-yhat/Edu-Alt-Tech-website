@@ -35,6 +35,27 @@ export default defineConfig({
       __OPENROUTER_MODEL__: JSON.stringify(env.VITE_OPENROUTER_MODEL || 'google/gemma-3-27b-it'),
     };
   })(),
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/') || id.includes('node_modules/react-router')) {
+            return 'vendor';
+          }
+          if (id.includes('node_modules/firebase')) {
+            return 'firebase';
+          }
+          if (id.includes('node_modules/lucide-react') || id.includes('node_modules/framer-motion')) {
+            return 'ui';
+          }
+          if (id.includes('lib/ai') || id.includes('AIAssistant') || id.includes('FlashcardDeck')) {
+            return 'ai';
+          }
+        },
+      },
+    },
+  },
   server: {
     allowedHosts: true,
   },
