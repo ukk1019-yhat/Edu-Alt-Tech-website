@@ -45,9 +45,12 @@ Be professional, efficient, and precise. Focus on actionable outputs.`,
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
+declare const __OPENROUTER_API_KEY__: string;
+declare const __OPENROUTER_MODEL__: string;
+
 async function callOpenRouterDirect(messages: { role: string; content: string }[]): Promise<AIChatResponse> {
-  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-  const model = import.meta.env.VITE_OPENROUTER_MODEL || 'google/gemma-3-27b-it';
+  const apiKey = typeof __OPENROUTER_API_KEY__ !== 'undefined' ? __OPENROUTER_API_KEY__ : '';
+  const model = typeof __OPENROUTER_MODEL__ !== 'undefined' ? __OPENROUTER_MODEL__ : 'google/gemma-3-27b-it';
 
   if (!apiKey) {
     throw new Error('VITE_OPENROUTER_API_KEY is not set in .env file');

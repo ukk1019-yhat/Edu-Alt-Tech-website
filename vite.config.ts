@@ -1,16 +1,41 @@
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import fs from 'fs';
+import path from 'path';
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
-  return {
-    plugins: [react()],
-    define: {
-      'import.meta.env.VITE_OPENROUTER_API_KEY': JSON.stringify(env.VITE_OPENROUTER_API_KEY),
-      'import.meta.env.VITE_OPENROUTER_MODEL': JSON.stringify(env.VITE_OPENROUTER_MODEL),
-    },
-    server: {
-      allowedHosts: true,
-    },
-  };
+function parseEnv(filePath: string): Record<string, string> {
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const vars: Record<string, string> = {};
+    for (const line of content.split('\n')) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eqIdx = trimmed.indexOf('=');
+      if (eqIdx === -1) continue;
+      const key = trimmed.slice(0, eqIdx).trim();
+      let val = trimmed.slice(eqIdx + 1).trim();
+      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+        val = val.slice(1, -1);
+      }
+      vars[key] = val;
+    }
+    return vars;
+  } catch {
+    return {};
+  }
+}
+
+export default defineConfig({
+  plugins: [react()],
+  define: (() => {
+    const envPath = path.resolve(process.cwd(), '.env');
+    const env = parseEnv(envPath);
+    return {
+      __OPENROUTER_API_KEY__: JSON.stringify(env.VITE_OPENROUTER_API_KEY || ''),
+      __OPENROUTER_MODEL__: JSON.stringify(env.VITE_OPENROUTER_MODEL || 'google/gemma-3-27b-it'),
+    };
+  })(),
+  server: {
+    allowedHosts: true,
+  },
 });
