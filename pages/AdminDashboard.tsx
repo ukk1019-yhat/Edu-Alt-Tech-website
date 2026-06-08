@@ -3,7 +3,7 @@ import { auth, db, storage } from '../lib/firebase';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, serverTimestamp, query, where, orderBy } from 'firebase/firestore';
-import { Loader2, Plus, Users, CalendarClock, Trash2, Check, Video, FileText, Edit, Save, X, Upload, LayoutDashboard, Database, ClipboardList, Settings, Search, MoreVertical, ExternalLink, ArrowLeft, AlertCircle, Sparkles, Bot } from 'lucide-react';
+import { Loader2, Plus, Users, CalendarClock, Trash2, Check, Video, FileText, Edit, Save, X, Upload, LayoutDashboard, Database, ClipboardList, Settings, Search, MoreVertical, ExternalLink, ArrowLeft, AlertCircle, Sparkles, Bot, BarChart3, Brain, Activity } from 'lucide-react';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Course, TeacherApplication, PatchNote, UserObject, CourseCategory } from '../types';
 import { toast } from 'react-hot-toast';
@@ -13,7 +13,7 @@ const ADMIN_EMAIL = 'viranadeep@gmail.com';
 
 const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'courses' | 'users' | 'appointments' | 'patchnotes' | 'system' | 'ai'>('courses');
+  const [activeTab, setActiveTab] = useState<'courses' | 'users' | 'appointments' | 'patchnotes' | 'system' | 'ai' | 'analytics' | 'behavior'>('courses');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -230,7 +230,8 @@ const AdminDashboard: React.FC = () => {
     try {
       const collections = [
         'users', 'courses', 'enrollments', 'chats', 'teacher_applications', 
-        'resources', 'course_modules', 'patch_notes', 'notifications', 'mail'
+        'resources', 'course_modules', 'patch_notes', 'notifications', 'mail',
+        'user_activities', 'user_metrics', 'quiz_attempts', 'learning_paths'
       ];
 
       for (const colName of collections) {
@@ -396,6 +397,8 @@ const AdminDashboard: React.FC = () => {
                   { id: 'patchnotes', label: 'Deployments', icon: Database, desc: 'System updates' },
                   { id: 'system', label: 'Settings', icon: Settings, desc: 'Global config' },
                   { id: 'ai', label: 'AI Tools', icon: Sparkles, desc: 'Content generation' },
+                  { id: 'analytics', label: 'Analytics', icon: BarChart3, desc: 'Live platform metrics' },
+                  { id: 'behavior', label: 'Behavior', icon: Brain, desc: 'Student behavior analysis' },
                 ].map((item) => (
                   <button
                     key={item.id}
@@ -851,7 +854,35 @@ const AdminDashboard: React.FC = () => {
                  </div>
                </div>
              )}
-             {activeTab === 'ai' && (
+              {activeTab === 'analytics' && (
+                <div className="bg-white dark:bg-slate-900 p-10 rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-xl">
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-xl shadow-emerald-500/20">
+                      <Activity className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-black tracking-tight">Live Platform Analytics</h2>
+                      <p className="text-slate-500 font-medium text-sm">Real-time learning metrics across all courses</p>
+                    </div>
+                  </div>
+                  <iframe src={`#/analytics`} className="w-full h-[600px] rounded-2xl border border-slate-200 dark:border-slate-800" title="Analytics Dashboard" />
+                </div>
+              )}
+              {activeTab === 'behavior' && (
+                <div className="bg-white dark:bg-slate-900 p-10 rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-xl">
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center shadow-xl shadow-amber-500/20">
+                      <Brain className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-black tracking-tight">Behavior Analysis Console</h2>
+                      <p className="text-slate-500 font-medium text-sm">Student engagement patterns and dropout risk detection</p>
+                    </div>
+                  </div>
+                  <iframe src={`#/admin/behavior`} className="w-full h-[600px] rounded-2xl border border-slate-200 dark:border-slate-800" title="Behavior Dashboard" />
+                </div>
+              )}
+              {activeTab === 'ai' && (
                <div className="max-w-3xl mx-auto space-y-8">
                  {/* AI Chat Section */}
                  <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">

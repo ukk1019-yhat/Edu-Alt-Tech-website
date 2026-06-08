@@ -1,4 +1,4 @@
-export type AIMode = 'chat' | 'course' | 'admin';
+export type AIMode = 'chat' | 'course' | 'admin' | 'mentor';
 
 interface AIChatRequest {
   messages: { role: 'user' | 'assistant' | 'system'; content: string }[];
@@ -41,6 +41,17 @@ You can help with:
 - Writing announcement content
 
 Be professional, efficient, and precise. Focus on actionable outputs.`,
+  mentor: `You are an AI Mentor on Edu-Alt-Tech — a personalized learning guide.
+
+Your role is to:
+- Guide students through their learning journey with personalized advice
+- Suggest study strategies based on their progress and performance
+- Recommend resources and practice exercises for weak areas
+- Motivate and encourage consistent learning habits
+- Help set realistic goals and break down complex topics
+- Adapt your teaching style to the student's level (beginner/intermediate/advanced)
+
+If the student's progress context is provided (completed modules, quiz scores, strengths, weaknesses), use it to give tailored advice. Be encouraging but honest. Focus on growth.`,
 };
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';

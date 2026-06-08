@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Bot, X, Send, Loader2, MessageCircle, BookOpen, Shield, ChevronDown, Sparkles } from 'lucide-react';
+import { Bot, X, Send, Loader2, MessageCircle, BookOpen, Shield, ChevronDown, Sparkles, GraduationCap, UserCheck, Lightbulb } from 'lucide-react';
 import { sendAIChat, AIMode } from '../lib/ai';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth, db } from '../lib/firebase';
+import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import type { User as FirebaseUser } from 'firebase/auth';
 
 type ModeOption = {
   id: AIMode;
@@ -11,6 +15,7 @@ type ModeOption = {
 
 const MODES: ModeOption[] = [
   { id: 'chat', label: 'General Chat', icon: <MessageCircle className="w-4 h-4" />, description: 'Ask anything about Edu-Alt-Tech' },
+  { id: 'mentor', label: 'AI Mentor', icon: <GraduationCap className="w-4 h-4" />, description: 'Personalized learning guidance' },
   { id: 'course', label: 'Course Help', icon: <BookOpen className="w-4 h-4" />, description: 'Get help with courses' },
   { id: 'admin', label: 'Admin Tool', icon: <Shield className="w-4 h-4" />, description: 'Admin assistance' },
 ];
@@ -27,8 +32,29 @@ const AIAssistant: React.FC = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [showModePicker, setShowModePicker] = useState(false);
+  const [mentorContext, setMentorContext] = useState<string>('');
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      if (u) {
+        try {
+          const mQ = query(collection(db, 'user_metrics'), where('userId', '==', u.uid), limit(5));
+          const mSnap = await getDocs(mQ);
+          const contextParts: string[] = [];
+          mSnap.forEach(d => {
+            const data = d.data();
+            contextParts.push(`Course: ${data.courseId?.slice(0, 12) || 'Unknown'} | Avg Score: ${Math.round(data.avgScore || 0)}% | Completed: ${data.completedModules || 0}/${data.totalModules || 0} modules | Level: ${data.currentDifficulty || 'beginner'} | Strengths: ${(data.strengths || []).slice(0, 3).join(', ')} | Weak areas: ${(data.weaknesses || []).slice(0, 3).join(', ')}`);
+          });
+          if (contextParts.length > 0) {
+            setMentorContext(`Student Progress Context:\n${contextParts.join('\n')}\n\nUse this to personalize your mentoring.`);
+          }
+        } catch {}
+      }
+    });
+    return () => unsub();
+  }, []);
 
   const openWithMode = useCallback((targetMode: AIMode) => {
     setMode(targetMode);
@@ -48,6 +74,7 @@ const AIAssistant: React.FC = () => {
     if (isOpen && messages.length === 0) {
       const greetings: Record<AIMode, string> = {
         chat: 'Hello! I\'m EduAI. I can help you with the platform, learning tips, or answer questions. What\'s on your mind?',
+        mentor: 'Welcome! I\'m your AI Mentor. I\'ve analyzed your learning progress and I\'m here to guide you. What would you like to work on today?',
         course: 'Hi there! I\'m your Course Assistant. Ask me about courses, learning paths, or concepts you\'re studying.',
         admin: 'Welcome, Admin. I\'m your admin assistant. I can help draft content, generate descriptions, or assist with platform management.',
       };
@@ -80,7 +107,11 @@ const AIAssistant: React.FC = () => {
         .slice(-10)
         .map(m => ({ role: m.role, content: m.content }));
 
-      const res = await sendAIChat(userMsg.content, mode, history);
+      const augmentedMessage = mode === 'mentor' && mentorContext
+        ? `${mentorContext}\n\nStudent says: ${userMsg.content}`
+        : userMsg.content;
+
+      const res = await sendAIChat(augmentedMessage, mode, history);
       setMessages(prev => [...prev, { role: 'assistant', content: res.content }]);
     } catch (err: any) {
       setMessages(prev => [...prev, {

@@ -4,12 +4,16 @@ import { doc, getDoc, collection, query, where, getDocs, addDoc, updateDoc, serv
 import { auth, db, storage } from '../lib/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Course, CourseEnrollment, CourseModule, ModuleLecture, CourseResource } from '../types';
-import { ArrowLeft, BookOpen, Video, FileText, Plus, Link as LinkIcon, Loader2, PlayCircle, CheckCircle2, Circle, ChevronRight, Clock, Award, Layout, Zap, X, Upload, ExternalLink, MessageCircle } from 'lucide-react';
+import { ArrowLeft, BookOpen, Video, FileText, Plus, Link as LinkIcon, Loader2, PlayCircle, CheckCircle2, Circle, ChevronRight, Clock, Award, Layout, Zap, X, Upload, ExternalLink, MessageCircle, Target } from 'lucide-react';
 import { onAuthStateChanged } from 'firebase/auth';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import CourseChat from '../components/CourseChat';
+import { recordModuleComplete, getOrCreateMetrics } from '../lib/userProgress';
+import { adaptDifficulty } from '../lib/learningPath';
+import DoubtSolver from '../components/DoubtSolver';
+import LearningPathView from '../components/LearningPathView';
 
 const CourseClassroom: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
@@ -23,7 +27,7 @@ const CourseClassroom: React.FC = () => {
   // Classroom Data
   const [modules, setModules] = useState<CourseModule[]>([]);
   const [resources, setResources] = useState<CourseResource[]>([]);
-  const [activeTab, setActiveTab] = useState<'roadmap' | 'chat'>('roadmap');
+  const [activeTab, setActiveTab] = useState<'roadmap' | 'chat' | 'path'>('roadmap');
 
   // Active Expand States
   const [expandedModules, setExpandedModules] = useState<string[]>([]);
@@ -212,6 +216,13 @@ const CourseClassroom: React.FC = () => {
       });
       
       setEnrollment({ ...enrollment, completedModules: newCompleted });
+
+      if (!isCompleted && user) {
+        await recordModuleComplete(user.uid, courseId!);
+        const metrics = await getOrCreateMetrics(user.uid, courseId!, modules.length);
+        await adaptDifficulty(user.uid, courseId!, { ...metrics, completedModules: newCompleted.length });
+      }
+
       toast.success(isCompleted ? "Checkpoint reset" : "Module mastered! Progress updated.");
     } catch(err) {
       toast.error("Status update failed");
@@ -295,6 +306,14 @@ const CourseClassroom: React.FC = () => {
               >
                 <MessageCircle className="w-4 h-4" /> Intelligence Exchange
               </button>
+              {role === 'student' && (
+                <button 
+                  onClick={() => setActiveTab('path')}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm transition-all ${activeTab === 'path' ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/20' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                >
+                  <Target className="w-4 h-4" /> AI Roadmap
+                </button>
+              )}
             </div>
 
             {activeTab === 'roadmap' ? (
@@ -457,6 +476,8 @@ const CourseClassroom: React.FC = () => {
               </div>
               )}
               </>
+            ) : activeTab === 'path' ? (
+              <LearningPathView courseId={courseId!} courseTitle={course.title} courseDescription={course.description} />
             ) : (
                 <div className="animate-in fade-in slide-in-from-bottom-5 duration-700">
                     <CourseChat 
@@ -541,6 +562,11 @@ const CourseClassroom: React.FC = () => {
           </aside>
         </div>
       </div>
+
+      {/* Doubt Solver */}
+      {role === 'student' && (
+        <DoubtSolver courseId={courseId!} courseTitle={course.title} />
+      )}
 
       {/* Premium Modals */}
       <AnimatePresence>

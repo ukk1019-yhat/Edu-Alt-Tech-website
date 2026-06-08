@@ -206,6 +206,148 @@ export interface FlashcardSet {
   cards: FlashCard[];
 }
 
+// ========== QUIZ / TEST GENERATION ==========
+export type Difficulty = 'easy' | 'medium' | 'hard';
+
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string;
+  difficulty: Difficulty;
+  topic?: string;
+}
+
+export interface QuizAttempt {
+  id: string;
+  userId: string;
+  courseId: string;
+  moduleId?: string;
+  title: string;
+  questions: QuizQuestion[];
+  userAnswers: number[];
+  score: number;
+  totalQuestions: number;
+  timeSpent: number;
+  completedAt: any;
+  difficulty: Difficulty;
+}
+
+// ========== USER METRICS / ADAPTIVE LEARNING ==========
+export type AdaptiveLevel = 'beginner' | 'intermediate' | 'advanced';
+
+export interface UserMetrics {
+  userId: string;
+  courseId: string;
+  avgScore: number;
+  totalTimeSpent: number;
+  completedModules: number;
+  totalModules: number;
+  quizAttempts: number;
+  currentDifficulty: AdaptiveLevel;
+  strengths: string[];
+  weaknesses: string[];
+  lastActivityAt: any;
+  engagementScore: number;
+  consistencyScore: number;
+  predictedDropoutRisk: 'low' | 'medium' | 'high';
+  recommendations?: string[];
+}
+
+// ========== LEARNING PATH / PERSONALIZED ROADMAPS ==========
+export interface LearningPathModule {
+  moduleId: string;
+  title: string;
+  description: string;
+  order: number;
+  status: 'pending' | 'in_progress' | 'completed';
+  estimatedHours: number;
+  prerequisites?: string[];
+  topics?: string[];
+}
+
+export interface LearningPath {
+  id: string;
+  userId: string;
+  courseId: string;
+  goal: string;
+  modules: LearningPathModule[];
+  createdAt: any;
+  updatedAt: any;
+  currentDifficulty: AdaptiveLevel;
+}
+
+// ========== ACTIVITY TRACKING / ANALYTICS ==========
+export type ActivityType = 'page_view' | 'module_complete' | 'quiz_attempt' | 'login' | 'enrollment' | 'resource_access' | 'doubt_asked' | 'mentor_session';
+
+export interface UserActivity {
+  id: string;
+  userId: string;
+  courseId?: string;
+  type: ActivityType;
+  metadata?: Record<string, any>;
+  timestamp: any;
+}
+
+// ========== DOUBT SOLVER ==========
+export interface DoubtQuestion {
+  id: string;
+  userId: string;
+  courseId: string;
+  moduleId?: string;
+  question: string;
+  answer?: string;
+  context?: string;
+  status: 'pending' | 'answered';
+  createdAt: any;
+  answeredAt?: any;
+}
+
+// ========== AI MENTOR SESSION ==========
+export interface MentorMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp?: any;
+}
+
+export interface MentorSession {
+  id: string;
+  userId: string;
+  courseId: string;
+  messages: MentorMessage[];
+  summary?: string;
+  createdAt: any;
+  updatedAt: any;
+  progressContext?: {
+    completedModules: string[];
+    avgScore: number;
+    currentDifficulty: AdaptiveLevel;
+    strengths: string[];
+    weaknesses: string[];
+  };
+}
+
+// ========== BEHAVIOR INSIGHTS ==========
+export interface BehaviorInsight {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  avgSessionDuration: number;
+  totalActiveDays: number;
+  loginConsistency: number;
+  moduleCompletionRate: number;
+  quizAvgScore: number;
+  peakActivityHours: number[];
+  preferredDays: string[];
+  engagementTrend: 'rising' | 'stable' | 'declining';
+  dropoutProbability: number;
+  lastActive: any;
+  courseIds: string[];
+  updatedAt: any;
+}
+
 export interface Notification {
   id: string;
   userId: string;

@@ -20,6 +20,9 @@ import AdminDashboard from './pages/AdminDashboard';
 import PatchNotes from './pages/PatchNotes';
 import Verification from './pages/Verification';
 import FlashcardDeck from './components/FlashcardDeck';
+import QuizPage from './pages/QuizPage';
+import LiveAnalytics from './pages/LiveAnalytics';
+import BehaviorInsights from './pages/BehaviorInsights';
 import { ThemeProvider } from './components/ThemeProvider';
 import { Toaster } from 'react-hot-toast';
 import AIAssistant from './components/AIAssistant';
@@ -72,6 +75,9 @@ const AppContent: React.FC = () => {
           <Route path="/patch-notes" element={<PatchNotes />} />
           <Route path="/verify" element={<Verification />} />
           <Route path="/flashcards" element={<FlashcardDeck />} />
+          <Route path="/quizzes" element={<QuizPage />} />
+          <Route path="/analytics" element={<LiveAnalytics />} />
+          <Route path="/admin/behavior" element={<BehaviorInsights />} />
         </Routes>
       </div>
       {!isHideLayout && <Footer />}
