@@ -2,6 +2,7 @@ import { db } from './firebase';
 import { doc, setDoc, getDoc, updateDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import type { LearningPath, LearningPathModule, UserMetrics, AdaptiveLevel } from '../types';
 import { sendAIChat } from './ai';
+import { extractJSON } from './jsonUtils';
 
 const PATHS_COLLECTION = 'learning_paths';
 
@@ -34,12 +35,11 @@ You are a learning path designer. Return ONLY valid JSON (no markdown, no code f
 Generate 5-8 modules suitable for a ${currentLevel} learner.`;
 
   const res = await sendAIChat(prompt, 'course');
-  const cleaned = res.content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+  const parsed = extractJSON<{ modules: any[] }>(res.content);
 
   let modules: LearningPathModule[];
-  try {
-    const parsed = JSON.parse(cleaned);
-    modules = (parsed.modules || parsed).map((m: any, i: number) => ({
+  if (parsed?.modules?.length) {
+    modules = parsed.modules.map((m: any, i: number) => ({
       moduleId: `gen_${i + 1}`,
       title: m.title,
       description: m.description || '',
@@ -49,7 +49,7 @@ Generate 5-8 modules suitable for a ${currentLevel} learner.`;
       prerequisites: m.prerequisites || [],
       topics: m.topics || [],
     }));
-  } catch {
+  } else {
     modules = [
       { moduleId: 'gen_1', title: 'Getting Started', description: 'Introduction to the course', order: 1, status: 'pending', estimatedHours: 2 },
       { moduleId: 'gen_2', title: 'Core Concepts', description: 'Fundamental topics', order: 2, status: 'pending', estimatedHours: 3 },

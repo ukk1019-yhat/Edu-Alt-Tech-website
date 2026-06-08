@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Loader2, ChevronLeft, ChevronRight, RotateCw, CheckCircle2, XCircle, Brain, ArrowLeft, BarChart3, Clock, Award } from 'lucide-react';
 import { sendAIChat } from '../lib/ai';
+import { extractJSON } from '../lib/jsonUtils';
 import { recordQuizAttempt } from '../lib/userProgress';
 import { auth } from '../lib/firebase';
 import type { QuizQuestion } from '../types';
@@ -42,9 +43,9 @@ Mix easy, medium, and hard questions. Each must have 4 options. correctAnswer is
 
     try {
       const res = await sendAIChat(`You are a quiz generator. Always return valid JSON only.\n\n${prompt}`, 'course');
-      const cleaned = res.content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-      const parsed = JSON.parse(cleaned);
-      setQuestions(parsed.questions || parsed);
+      const parsed = extractJSON<{ questions: QuizQuestion[] }>(res.content);
+      if (!parsed?.questions?.length) throw new Error('AI returned invalid JSON for quiz questions');
+      setQuestions(parsed.questions);
       setStarted(true);
     } catch (e: any) {
       setError(e.message || 'Failed to generate quiz');

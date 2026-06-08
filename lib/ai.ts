@@ -1,3 +1,5 @@
+import { extractJSON } from './jsonUtils';
+
 export type AIMode = 'chat' | 'course' | 'admin' | 'mentor';
 
 interface AIChatRequest {
@@ -173,14 +175,14 @@ Make each card concise and educational. Cover key concepts, definitions, and imp
     response = await callOpenRouterDirect(messages);
   }
 
-  const cleaned = response.content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+  const parsed = extractJSON<FlashcardSet>(response.content);
 
-  try {
-    return JSON.parse(cleaned) as FlashcardSet;
-  } catch {
-    return {
-      title: topic,
-      cards: [{ front: topic, back: response.content }],
-    };
+  if (parsed?.cards?.length) {
+    return parsed;
   }
+
+  return {
+    title: topic,
+    cards: [{ front: topic, back: response.content }],
+  };
 }
