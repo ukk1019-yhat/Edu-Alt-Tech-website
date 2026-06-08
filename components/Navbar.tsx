@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Rocket, ChevronDown, User, LogOut, Terminal, Activity, Sun, Moon, Sparkles, BarChart3 } from 'lucide-react';
+import { Menu, X, Rocket, ChevronDown, User, LogOut, Terminal, Activity, Sun, Moon, Sparkles } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import type { User as FirebaseUser } from 'firebase/auth';
@@ -69,7 +69,6 @@ export default function Navbar() {
     { name: 'Home', path: '/' },
     { name: 'Courses', path: '/courses' },
     { name: 'Flashcards', path: '/flashcards' },
-    { name: 'Analytics', path: '/analytics' },
     { name: 'Dashboard', path: '/dashboard' },
   ];
 
@@ -146,11 +145,8 @@ export default function Navbar() {
                  <Link to="/patch-notes" title="Patch Notes" className="p-2 text-slate-500 hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
                     <Terminal className="w-5 h-5" />
                  </Link>
-                 <Link to="/flashcards" title="Flashcards" className="p-2 text-slate-500 hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                  <Link to="/flashcards" title="Flashcards" className="p-2 text-slate-500 hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
                     <Sparkles className="w-5 h-5" />
-                  </Link>
-                  <Link to="/analytics" title="Analytics" className="p-2 text-slate-500 hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
-                    <BarChart3 className="w-5 h-5" />
                   </Link>
 
                 <button onClick={toggleTheme} className="p-2 text-slate-600 hover:text-emerald-600 transition-colors">
@@ -185,9 +181,6 @@ export default function Navbar() {
             <div className="md:hidden flex items-center gap-4">
                <Link to="/flashcards" title="Flashcards" className="p-2 text-slate-500">
                    <Sparkles className="w-5 h-5" />
-                </Link>
-                <Link to="/analytics" title="Analytics" className="p-2 text-slate-500">
-                   <BarChart3 className="w-5 h-5" />
                 </Link>
                 <Link to="/patch-notes" title="Patch Notes" className="p-2 text-slate-500">
                    <Terminal className="w-5 h-5" />
