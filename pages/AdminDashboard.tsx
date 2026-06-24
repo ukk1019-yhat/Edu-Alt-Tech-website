@@ -120,12 +120,12 @@ const AdminDashboard: React.FC = () => {
   toast.success('Course created');
   }
   setIsCourseModalOpen(false);
-  fetchData();
   } catch (e: any) {
   toast.error(e?.message || 'Failed to save course');
   } finally {
   setSavingCourse(false);
   }
+  await fetchData();
   };
 
   const handleDeleteCourse = async (courseId: string, title: string) => {
@@ -140,10 +140,10 @@ const AdminDashboard: React.FC = () => {
   try {
   await deleteDoc(doc(db, 'courses', courseId));
   toast.success('Course deleted');
-  fetchData();
   } catch (e: any) {
   toast.error(e?.message || 'Failed to delete course');
   }
+  await fetchData();
   };
 
    const handleToggleComingSoon = async (course: any) => {
@@ -159,10 +159,10 @@ const AdminDashboard: React.FC = () => {
   try {
   await updateDoc(doc(db, 'courses', course.id), { comingSoon: newVal });
   toast.success(newVal ? 'Marked as Coming Soon' : 'Course released');
-  fetchData();
   } catch (e: any) {
   toast.error(e?.message || 'Failed to update course');
   }
+  await fetchData();
   };
 
  const filteredCoursesList = useMemo(() => {

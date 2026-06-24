@@ -27,6 +27,8 @@ export interface DriveFile {
  mimeType: string;
  size?: string;
  modifiedTime?: string;
+ webContentLink?: string;
+ webViewLink?: string;
 }
 
 export interface DriveFolder {
@@ -43,17 +45,23 @@ async function fetchFromDrive<T>(url: string): Promise<T> {
 
 export async function getDriveSubfolders(): Promise<DriveFolder[]> {
  const data = await fetchFromDrive<{ files: DriveFile[] }>(
- `https://www.googleapis.com/drive/v3/files?q='${ROOT_FOLDER_ID}'+in+parents+and+mimeType='application/vnd.google-apps.folder'+and+trashed=false&key=${DRIVE_API_KEY}&fields=files(id,name,mimeType)`
+  `https://www.googleapis.com/drive/v3/files?q='${ROOT_FOLDER_ID}'+in+parents+and+mimeType='application/vnd.google-apps.folder'+and+trashed=false&key=${DRIVE_API_KEY}&fields=files(id,name,mimeType)`
  );
  const folders = data.files || [];
- const results: DriveFolder[] = [];
- for (const folder of folders) {
- const fileData = await fetchFromDrive<{ files: DriveFile[] }>(
- `https://www.googleapis.com/drive/v3/files?q='${folder.id}'+in+parents+and+trashed=false&key=${DRIVE_API_KEY}&fields=files(id,name,mimeType,size,modifiedTime)`
+ const results = await Promise.all(
+  folders.map(async (folder) => {
+   try {
+    const fileData = await fetchFromDrive<{ files: DriveFile[] }>(
+     `https://www.googleapis.com/drive/v3/files?q='${folder.id}'+in+parents+and+trashed=false&key=${DRIVE_API_KEY}&fields=files(id,name,mimeType,size,modifiedTime,webContentLink,webViewLink)`
+    );
+    return { id: folder.id, name: folder.name, files: fileData.files || [] };
+   } catch (e) {
+    console.error(`Failed to fetch files for folder ${folder.name}`, e);
+    return { id: folder.id, name: folder.name, files: [] };
+   }
+  })
  );
- results.push({ id: folder.id, name: folder.name, files: fileData.files || [] });
- }
- return results;
+ return results.filter(r => r.files.length > 0);
 }
 
 export function getDriveDownloadUrl(fileId: string): string {

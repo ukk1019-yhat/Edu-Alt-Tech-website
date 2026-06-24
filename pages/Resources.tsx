@@ -67,6 +67,25 @@ export const STATIC_RESOURCES: ResourceItem[] = [
   { title: "English Grammar & Writing Skills", description: "Guide to active/passive voice, tenses, and essay writing", type: "notes", category: "English", premium: false, downloads: "2.4K", classLevel: "Class 6-8" },
   { title: "French Vocabulary & Conversation Guide", description: "Basic vocabulary list and introductory phrases in French", type: "notes", category: "English", premium: false, downloads: "1.1K", classLevel: "Class 6-8" },
 ];
+ title: string;
+ description: string;
+ type: 'pdf' | 'notes' | 'questions' | 'worksheet';
+ category: string;
+ premium: boolean;
+ downloads: string;
+ url?: string;
+ viewUrl?: string;
+ classLevel?: string;
+}
+
+export const STATIC_RESOURCES: ResourceItem[] = [];
+
+const typeIcons: Record<string, React.ReactNode> = {
+ pdf: <FileText className="w-5 h-5" />,
+ notes: <BookOpen className="w-5 h-5" />,
+ questions: <Brain className="w-5 h-5" />,
+ worksheet: <FileSpreadsheet className="w-5 h-5" />,
+};
 
 const typeLabels: Record<string, string> = {
   pdf: "PDF", notes: "Notes", questions: "Question Bank", worksheet: "Worksheet",
@@ -131,6 +150,41 @@ const Resources: React.FC = () => {
       finally { setLoadingDrive(false); }
     };
     fetchDrive();
+   const fetchDrive = async () => {
+   try {
+   const folders = await getDriveSubfolders();
+   const items: ResourceItem[] = [];
+   for (const folder of folders) {
+   const category = getDriveFileCategory(folder.name);
+   const folderLower = folder.name.toLowerCase();
+   const isJee = folderLower.includes('jee') || folderLower.includes('iit') || folderLower.includes('jeee');
+   for (const file of folder.files) {
+   if (file.mimeType === 'application/vnd.google-apps.folder') continue;
+   const name = file.name.replace(/\.pdf$/i, '');
+   const sizeLabel = file.size ? ` (${(Number(file.size) / 1024 / 1024).toFixed(1)} MB)` : '';
+   const fileLower = name.toLowerCase();
+   const isJeeFile = fileLower.includes('jee') || fileLower.includes('iit') || fileLower.includes('advance') || fileLower.includes('mains') || (['physics', 'chemistry', 'mathematics', 'math'].includes(category.toLowerCase()) && (fileLower.includes('revision') || fileLower.includes('revison')));
+   items.push({
+   title: name,
+   description: `${category} resource from Google Drive${sizeLabel}`,
+   type: 'pdf',
+   category,
+   premium: false,
+   downloads: '0',
+   url: file.webContentLink || getDriveDownloadUrl(file.id),
+   viewUrl: file.webViewLink || getDriveDownloadUrl(file.id).replace('uc?export=download', 'file/d') + '/view',
+    classLevel: isJee || isJeeFile ? 'JEE Main' : 'College/Engineering',
+   });
+   }
+   }
+   setDriveResources(items);
+  } catch (e) {
+  console.error('Failed to load Drive resources', e);
+  } finally {
+  setLoadingDrive(false);
+  }
+  };
+  fetchDrive();
   }, []);
 
   const allResources = useMemo(() => [...STATIC_RESOURCES, ...firebaseResources.filter(fr => !STATIC_RESOURCES.find(r => r.title === fr.title)), ...driveResources.filter(dr => !STATIC_RESOURCES.find(r => r.title === dr.title) && !firebaseResources.find(fr => fr.title === dr.title))], [firebaseResources, driveResources]);
@@ -217,6 +271,96 @@ const Resources: React.FC = () => {
             </button>
           )}
         </div>
+ {/* Grid */}
+ <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+ {displayedResources.map((item, idx) => (
+ <motion.div
+ key={idx} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
+ className={`group bg-white border rounded-2xl p-6 transition-transform duration-500 hover:-translate-y-2 ${
+ item.premium
+ ? 'border-amber-200 /50 hover:shadow-xl hover:shadow-amber-500/10'
+ : 'border-slate-200 hover:shadow-xl hover:border-emerald-500'
+ }`}
+ >
+ <div className="flex items-start justify-between mb-4">
+ <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+ item.premium ? 'bg-amber-50 /20 text-amber-500' : 'bg-emerald-50 /20 text-emerald-500'
+ }`}>{typeIcons[item.type]}</div>
+ <div className="flex gap-2 flex-wrap justify-end">
+ {item.classLevel && (
+ <span className="px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-indigo-100 /30 text-indigo-700 ">
+ {item.classLevel}
+ </span>
+ )}
+ <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
+ item.premium
+ ? 'bg-amber-100 /30 text-amber-700 '
+ : 'bg-emerald-100 /30 text-emerald-700 '
+ }`}>{typeLabels[item.type]}</span>
+ {item.premium && (
+ <span className="px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-amber-100 /30 text-amber-700 flex items-center gap-1">
+ <Lock className="w-3 h-3" /> Premium
+ </span>
+ )}
+ </div>
+ </div>
+  <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors">
+   {!user ? (
+    <span onClick={() => setIsAuthModalOpen(true)} className="cursor-pointer">
+     {item.title}
+    </span>
+   ) : (item.viewUrl || item.url) ? (
+    <a href={item.viewUrl || item.url} target="_blank" rel="noopener noreferrer">
+     {item.title}
+    </a>
+   ) : (
+    item.title
+   )}
+  </h3>
+  <p className="text-sm text-slate-500 mb-4 leading-relaxed">{item.description}</p>
+  <div className="flex items-center justify-between flex-wrap gap-2">
+  <span className="text-xs text-slate-400">{item.downloads} downloads</span>
+  <div className="flex gap-2">
+  {!user ? (
+   <>
+    <button onClick={() => setIsAuthModalOpen(true)} className="flex items-center gap-1 text-xs font-bold px-3 py-2 rounded-xl transition-colors bg-indigo-600 hover:bg-indigo-50 text-white shadow-lg shadow-indigo-600/20">
+     <BookOpen className="w-3 h-3" /> View
+    </button>
+    <button onClick={() => setIsAuthModalOpen(true)} className="flex items-center gap-1 text-xs font-bold px-3 py-2 rounded-xl transition-colors bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20">
+     <Download className="w-3 h-3" /> Download
+    </button>
+   </>
+  ) : (
+   <>
+    {(item.viewUrl || item.url) && (
+     <a href={item.viewUrl || item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs font-bold px-3 py-2 rounded-xl transition-colors bg-indigo-600 hover:bg-indigo-50 text-white shadow-lg shadow-indigo-600/20">
+      <BookOpen className="w-3 h-3" /> View
+     </a>
+    )}
+    {item.url ? (
+     <a href={item.viewUrl || item.url} target="_blank" rel="noopener noreferrer" onClick={() => trackDownload(item)} className={`flex items-center gap-1 text-xs font-bold px-3 py-2 rounded-xl transition-colors ${
+      item.premium
+      ? 'bg-amber-500 hover:bg-amber-400 text-white shadow-lg shadow-amber-500/20'
+      : 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20'
+     }`}>
+      <Download className="w-3 h-3" /> {item.premium ? 'Unlock' : 'Download'}
+     </a>
+    ) : (
+     <button className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-colors ${
+      item.premium
+      ? 'bg-amber-500 hover:bg-amber-400 text-white shadow-lg shadow-amber-500/20'
+      : 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20'
+     }`}>
+      <Download className="w-3 h-3" /> {item.premium ? 'Unlock' : 'Download'}
+     </button>
+    )}
+   </>
+  )}
+  </div>
+  </div>
+ </motion.div>
+ ))}
+ </div>
 
         {/* Resource Table */}
         {displayedResources.length > 0 ? (

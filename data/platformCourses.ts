@@ -22,7 +22,7 @@ export const PLATFORM_COURSES: PlatformCourse[] = [
   description: 'Master the core concepts of Artificial Intelligence including machine learning basics, neural networks, and prompt engineering techniques. Learn to craft effective prompts for ChatGPT, Claude, Gemini and other AI models. Hands-on projects with real-world AI tools. Certificate provided upon completion. Demo class available for all ages before enrollment.',
   category: 'alternative',
   price: 699,
-  thumbnailUrl: getThumbnail('AI Fundamentals & Prompt Engineering', 'Artificial Intelligence'),
+  thumbnailUrl: 'https://drive.google.com/uc?export=view&id=1f7-M_N6KxlaNdR2TdD3Z5aay2gF50NDO',
   folder: 'Artificial Intelligence',
   duration: '6 weeks',
   level: 'Beginner-Adv',
