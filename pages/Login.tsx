@@ -20,7 +20,7 @@ const Login: React.FC = () => {
         if (!userDoc.exists()) {
           await setDoc(userRef, { name: u.displayName || 'User', email: u.email, photoURL: u.photoURL, createdAt: serverTimestamp() });
         }
-        if (u.email === 'ukkukk97@gmail.com' || u.email === 'umakrishnakanthchokkapu15@gmail.com') {
+        if (u.email === 'ukkukk97@gmail.com' || u.email === 'umakrishnakanthchokkapu15@gmail.com' || u.email === 'admin@edualttech.com') {
           navigate('/admin');
         } else {
           navigate('/dashboard');
@@ -37,7 +37,7 @@ const Login: React.FC = () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       if (!userCredential.user) return;
-      if (userCredential.user.email === 'ukkukk97@gmail.com' || userCredential.user.email === 'umakrishnakanthchokkapu15@gmail.com') {
+      if (userCredential.user.email === 'ukkukk97@gmail.com' || userCredential.user.email === 'umakrishnakanthchokkapu15@gmail.com' || userCredential.user.email === 'admin@edualttech.com') {
         navigate('/admin');
       } else {
         navigate('/dashboard');
