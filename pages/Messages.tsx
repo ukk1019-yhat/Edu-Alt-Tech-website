@@ -12,7 +12,7 @@ const Messages: React.FC = () => {
     const unsub = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        const isAdmin = currentUser.email === 'ukkukk97@gmail.com' || currentUser.email === 'umakrishnakanthchokkapu15@gmail.com';
+        const isAdmin = currentUser.email === 'ukkukk97@gmail.com' || currentUser.email === 'umakrishnakanthchokkapu15@gmail.com' || currentUser.email === 'admin@edualttech.com';
         if (isAdmin) {
           setRole('admin');
         } else {

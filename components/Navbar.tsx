@@ -78,7 +78,7 @@ export default function Navbar({ onSearchToggle, onNotifToggle }: NavbarProps) {
 
   const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light');
 
-  const isAdmin = user?.email === 'ukkukk97@gmail.com' || user?.email === 'umakrishnakanthchokkapu15@gmail.com' || userProfile?.role === 'admin';
+  const isAdmin = user?.email === 'ukkukk97@gmail.com' || user?.email === 'umakrishnakanthchokkapu15@gmail.com' || user?.email === 'admin@edualttech.com' || userProfile?.role === 'admin';
   let navLinks = publicLinks;
   if (isAdmin) navLinks = adminLinks;
   else if (user) navLinks = studentLinks;

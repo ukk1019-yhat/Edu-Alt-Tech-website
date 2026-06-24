@@ -53,7 +53,7 @@ const Signup: React.FC = () => {
 
       await sendEmailVerification(userCredential.user);
 
-      if (email === 'ukkukk97@gmail.com' || email === 'umakrishnakanthchokkapu15@gmail.com') {
+      if (email === 'ukkukk97@gmail.com' || email === 'umakrishnakanthchokkapu15@gmail.com' || email === 'admin@edualttech.com') {
         navigate('/admin');
       } else {
         navigate('/dashboard');
