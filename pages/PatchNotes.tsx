@@ -1,122 +1,126 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth, collection, getDocs, query, orderBy, doc, deleteDoc, onAuthStateChanged } from '../lib/firebase';
 import { PatchNote } from '../types';
-import { Loader2, FileText, ArrowLeft, Terminal, Trash2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { motion } from 'framer-motion';
 
 const PatchNotes: React.FC = () => {
- const [notes, setNotes] = useState<PatchNote[]>([]);
- const [loading, setLoading] = useState(true);
- const [isAdmin, setIsAdmin] = useState(false);
- const ADMIN_EMAILS = ['ukkukk97@gmail.com', 'umakrishnakanthchokkapu15@gmail.com'];
+  const [notes, setNotes] = useState<PatchNote[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const ADMIN_EMAILS = ['ukkukk97@gmail.com', 'umakrishnakanthchokkapu15@gmail.com'];
+  const navigate = useNavigate();
 
- const containerRef = React.useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setIsAdmin(!!currentUser?.email && ADMIN_EMAILS.includes(currentUser.email));
+    });
+    return () => unsubscribe();
+  }, []);
 
- useEffect(() => {
- const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
- setIsAdmin(!!currentUser?.email && ADMIN_EMAILS.includes(currentUser.email));
- });
- return () => unsubscribe();
- }, []);
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const q = query(collection(db, 'patch_notes'), orderBy('createdAt', 'desc'));
+        const snap = await getDocs(q);
+        setNotes(snap.docs.map(d => ({ id: d.id, ...d.data() } as PatchNote)));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNotes();
+  }, []);
 
- useEffect(() => {
- const fetchNotes = async () => {
- try {
- const q = query(collection(db, 'patch_notes'), orderBy('createdAt', 'desc'));
- const snap = await getDocs(q);
- setNotes(snap.docs.map(d => ({ id: d.id, ...d.data() } as PatchNote)));
- } catch (err) {
- console.error(err);
- } finally {
- setLoading(false);
- }
- };
- fetchNotes();
- }, []);
+  const handleDeleteNote = async (id: string) => {
+    if (!isAdmin) return;
+    try {
+      await deleteDoc(doc(db, 'patch_notes', id));
+      setNotes(prev => prev.filter(n => n.id !== id));
+      toast.success('Patch note deleted');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to delete patch note');
+    }
+  };
 
- const handleDeleteNote = async (id: string) => {
- if (!isAdmin) return;
- try {
- await deleteDoc(doc(db, 'patch_notes', id));
- setNotes(prev => prev.filter(n => n.id !== id));
- toast.success('Patch note deleted');
- } catch (err) {
- console.error(err);
- toast.error('Failed to delete patch note');
- }
- };
+  if (loading) {
+    return (
+      <div className="flex flex-col" style={{ gap: 16 }}>
+        <div className="skeleton skeleton-title" style={{ width: 140 }} />
+        <div className="skeleton skeleton-text" style={{ width: 220 }} />
+        <div className="skeleton skeleton-card" style={{ height: 120 }} />
+        <div className="skeleton skeleton-card" style={{ height: 100 }} />
+      </div>
+    );
+  }
 
- if (loading) {
- return <div className="min-h-screen pt-32 flex justify-center"><Loader2 className="w-10 h-10 animate-spin text-emerald-600" /></div>;
- }
+  return (
+    <div>
+      <div className="flex" style={{ alignItems: 'flex-start', gap: 16, marginBottom: 24 }}>
+        <button onClick={() => navigate(-1)} className="btn btn-sm btn-secondary flex items-center gap-2">
+          Back
+        </button>
+      </div>
 
- return (
- <div className="min-h-screen pt-32 pb-32 px-6 bg-slate-50 [#020617] text-slate-900 relative overflow-hidden">
- <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-emerald-500/5 to-indigo-500/5 /10 /10 rounded-full blur-[60px] pointer-events-none -translate-y-1/2 translate-x-1/3" />
- <div className="max-w-4xl mx-auto relative z-10" ref={containerRef}>
- <motion.div
- initial={{ opacity: 0, y: 20 }}
- animate={{ opacity: 1, y: 0 }}
- className="flex items-center justify-between mb-16"
- >
- <div>
- <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 :text-white transition-colors mb-6 font-medium">
- <ArrowLeft className="w-4 h-4" /> Back to Home
- </Link>
- <h1 className="text-5xl md:text-6xl font-black flex items-center gap-4 tracking-tighter">
- <span className="w-14 h-14 bg-emerald-100 /30 text-emerald-600 rounded-2xl flex items-center justify-center">
- <Terminal className="w-7 h-7"/>
- </span>
- System Updates
- </h1>
- <p className="text-xl text-slate-600 mt-4 font-medium">Latest changelogs, features, and fixes for the platform.</p>
- </div>
- </motion.div>
+      <div className="page-header">
+        <div className="flex" style={{ alignItems: 'center', gap: 12 }}>
+          <div style={{ width: 48, height: 48, border: '2px solid var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--accent-soft)' }}>
+            
+          </div>
+          <div>
+            <h1>System Updates</h1>
+            <p>Latest changelogs, features, and fixes for the platform.</p>
+          </div>
+        </div>
+      </div>
 
- {notes.length === 0 ? (
- <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 ">
- <FileText className="w-12 h-12 mx-auto text-slate-300 mb-4" />
- <p className="text-xl text-slate-500 ">No patch notes have been published yet.</p>
- </div>
- ) : (
- <div className="space-y-8">
- {notes.map((note, idx) => (
- <motion.div
- key={note.id}
- initial={{ opacity: 0, y: 30 }}
- whileInView={{ opacity: 1, y: 0 }}
- viewport={{ once: true }}
- transition={{ delay: idx * 0.08, duration: 0.5 }}
- className="bg-white/90 /80 backdrop-blur-xl p-10 rounded-[2.5rem] border border-slate-200/50 /50 shadow-xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300"
- >
- <div className="absolute top-0 right-0 py-2 px-5 bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-black text-sm rounded-bl-2xl shadow-md">
- {note.version}
- </div>
- <h2 className="text-3xl font-black mb-3 pr-24 text-slate-900 tracking-tight">{note.title || 'Platform Update'}</h2>
- <p className="text-sm font-semibold text-slate-500 mb-6 border-b border-slate-100 pb-4">
- {note.createdAt && ('toDate' in note.createdAt) ? note.createdAt.toDate().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric'}) : 'Recently'}
- </p>
- <div className="prose max-w-none text-slate-700 ">
- <pre className="whitespace-pre-wrap font-sans bg-transparent p-0 m-0 text-base">{note.content}</pre>
- </div>
- {isAdmin && (
- <button 
- onClick={() => handleDeleteNote(note.id)}
- className="absolute top-12 right-6 p-2 bg-rose-100 text-rose-600 /30 rounded-xl hover:bg-rose-200 :bg-rose-800 transition"
- title="Delete Patch Note"
- >
- <Trash2 className="w-5 h-5" />
- </button>
- )}
- </motion.div>
- ))}
- </div>
- )}
- </div>
- </div>
- );
+      {notes.length > 0 ? (
+        <div className="flex flex-col" style={{ gap: 16 }}>
+          {notes.map((note, idx) => (
+            <div key={note.id} className="bento-card relative">
+              <div className="flex" style={{ gap: 16, alignItems: 'flex-start' }}>
+                {/* Timeline marker */}
+                <div className="flex flex-col items-center" style={{ flexShrink: 0 }}>
+                  <div style={{ width: 40, height: 40, border: '2px solid var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--accent-soft)' }}>
+                    <span className="font-semibold" style={{ fontSize: '0.7rem', color: 'var(--accent)' }}>{note.version || `v${notes.length - idx}`}</span>
+                  </div>
+                  {idx < notes.length - 1 && <div style={{ width: 2, flex: 1, background: 'var(--ink)', minHeight: 24 }} />}
+                </div>
+
+                {/* Content */}
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <h3 style={{ margin: 0 }}>{note.title || 'Platform Update'}</h3>
+                      <span className="flabel">
+                        {note.createdAt && ('toDate' in note.createdAt) ? note.createdAt.toDate().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'Recently'}
+                      </span>
+                    </div>
+                    {isAdmin && (
+                      <button onClick={() => handleDeleteNote(note.id)} className="btn btn-sm" style={{ color: 'var(--warn)', borderColor: 'var(--warn)' }} title="Delete Patch Note">
+                        🗑
+                      </button>
+                    )}
+                  </div>
+                  <div className="bento-card-compact" style={{ padding: 16 }}>
+                    <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{note.content}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="empty-state">
+          <span style={{ fontSize: 48, color: 'var(--ink-mute)' }}>📄</span>
+          <h3>No updates yet</h3>
+          <p>System changelogs will appear here when new features ship.</p>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default PatchNotes;

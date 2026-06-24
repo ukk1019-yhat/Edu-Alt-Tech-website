@@ -1,81 +1,55 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { ServerCrash, Users, Activity } from 'lucide-react';
 
 const problems = [
- {
- icon: <ServerCrash className="w-8 h-8 text-rose-500" />,
- title: "Fragmented Infrastructure",
- description: "Schools rely on monolithic legacy software, creating extreme data silos, communication gaps, and security vulnerabilities."
- },
- {
- icon: <Users className="w-8 h-8 text-amber-500" />,
- title: "Retention Plummets",
- description: "Traditional analog models fail to effectively capture the dopamine loops necessary to engage digital-native students."
- },
- {
- icon: <Activity className="w-8 h-8 text-blue-500" />,
- title: "Analytics Blindspots",
- description: "Administrators and parents lack instant, data-driven analytics into student performance, forcing reactive rather than proactive guidance."
- }
+  {
+    title: 'Fragmented Systems',
+    desc: 'Institutions maintain disconnected modules, creating bottlenecks, information silos, and security concerns.',
+    accent: false,
+  },
+  {
+    title: 'Outdated Tracking',
+    desc: 'Static tracking models fail to measure practical learning progression, leaving teachers unaware of dropout risks.',
+    accent: true,
+  },
+  {
+    title: 'Language Barriers',
+    desc: 'High-quality tech materials are confined to single-language textbooks, locking out students from diverse regions.',
+    accent: false,
+  },
 ];
 
-const Card = ({ problem, index }: { problem: any, index: number }) => {
- return (
- <motion.div 
- initial={{ opacity: 0, y: 50 }}
- whileInView={{ opacity: 1, y: 0 }}
- viewport={{ once: true, margin: "-50px" }}
- transition={{ duration: 0.6, delay: index * 0.1 }}
- className="bg-white border border-slate-200/50 /50 p-10 md:p-14 rounded-[2.5rem] shadow-xl shadow-slate-200/20 hover:shadow-2xl transition-shadow duration-500 group"
- >
- <div className="w-16 h-16 bg-slate-50 rounded-[1.5rem] flex items-center justify-center mb-8 ring-1 ring-slate-100 group-hover:scale-110 transition-transform duration-500 shadow-sm">
- {problem.icon}
- </div>
- <h3 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">{problem.title}</h3>
- <p className="text-slate-600 leading-relaxed text-lg font-medium">
- {problem.description}
- </p>
- </motion.div>
- );
-};
-
 const ProblemSection: React.FC = () => {
- return (
- <section className="py-24 md:py-40 bg-slate-50 transition-colors duration-300 relative overflow-hidden">
- <div className="max-w-[1400px] mx-auto px-6 relative z-10">
- <div className="flex flex-col lg:flex-row gap-16 lg:gap-32 relative items-start">
- 
- <div className="lg:w-5/12 lg:sticky top-40 z-20">
- <motion.div 
- initial={{ opacity: 0, x: -30 }}
- whileInView={{ opacity: 1, x: 0 }}
- viewport={{ once: true }}
- transition={{ duration: 0.8 }}
- >
- <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-50 /20 border border-rose-100 /30 text-rose-600 font-bold tracking-widest uppercase text-xs mb-8 shadow-sm">
- The Disconnect
- </div>
- <h2 className="text-5xl lg:text-[4.5rem] font-black text-slate-900 mb-8 tracking-tighter leading-[0.95]">
- Why Legacy <br/>
- <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-orange-500">Systems Fail</span>
- </h2>
- <p className="text-xl text-slate-600 max-w-md leading-relaxed font-medium">
- Education architecture hasn't evolved alongside modern cloud frameworks. We've identified critical structural bottlenecks hindering scalable institutional growth.
- </p>
- </motion.div>
- </div>
+  return (
+    <section className="viewport-content">
+      <div style={{ maxWidth: 600, marginBottom: 40 }}>
+        <h2 className="mt-12">Why legacy systems fail modern classrooms</h2>
+        <p className="mt-12">
+          Modern classrooms require distributed schemas, but standard administration tools rely on paper legacy structures.
+        </p>
+      </div>
 
- <div className="lg:w-7/12 flex flex-col gap-8 pb-10 z-10 w-full">
- {problems.map((problem, idx) => (
- <Card key={idx} problem={problem} index={idx} />
- ))}
- </div>
-
- </div>
- </div>
- </section>
- );
+      <div className="grid-3">
+        <div className="bento-card">
+          <h3 style={{ fontSize: '1.15rem', marginBottom: 12 }}>Fragmented Systems</h3>
+          <p style={{ fontSize: '0.9rem', color: 'var(--ink-soft)' }}>
+            Institutions maintain disconnected modules, creating bottlenecks, information silos, and security concerns.
+          </p>
+        </div>
+        <div className="bento-card" style={{ background: 'var(--accent)', color: '#fff' }}>
+          <h3 style={{ fontSize: '1.15rem', marginBottom: 12, color: '#fff' }}>Outdated Tracking</h3>
+          <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)' }}>
+            Static tracking models fail to measure practical learning progression, leaving teachers unaware of dropout risks.
+          </p>
+        </div>
+        <div className="bento-card">
+          <h3 style={{ fontSize: '1.15rem', marginBottom: 12 }}>Language Barriers</h3>
+          <p style={{ fontSize: '0.9rem', color: 'var(--ink-soft)' }}>
+            High-quality tech materials are confined to single-language textbooks, locking out students from diverse regions.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
 };
 
 export default ProblemSection;

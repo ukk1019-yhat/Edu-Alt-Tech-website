@@ -1,110 +1,140 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Globe, Smartphone, MonitorDot, TabletSmartphone, BarChart3, Zap } from 'lucide-react';
 
-const solutions = [
- { icon: <Globe className="w-5 h-5 text-emerald-500" />, title: "Headless CMS Web App", desc: "Decoupled architecture for instant load times." },
- { icon: <Smartphone className="w-5 h-5 text-emerald-500" />, title: "Native Student App", desc: "iOS/Android unified codebase for max engagement." },
- { icon: <MonitorDot className="w-5 h-5 text-emerald-500" />, title: "Teacher OS Dashboard", desc: "Real-time moderation and grading workflow." },
- { icon: <TabletSmartphone className="w-5 h-5 text-emerald-500" />, title: "Parent Guardian Portal", desc: "Live analytics on student health & progress." },
- { icon: <BarChart3 className="w-5 h-5 text-emerald-500" />, title: "SuperAdmin Analytics", desc: "Macro-level insights across the entire network." },
+import React, { useState } from "react";
+
+const transcripts: Record<string, string> = {
+  English:
+    "Welcome to today's live classroom session. Today, we will explore how we design scalable systems and why clean architecture is essential for large-scale web development.",
+  Hindi:
+    "आज के लाइव क्लास सत्र में आपका स्वागत है। आज, हम यह पता लगाएंगे कि हम स्केलेबल सिस्टम कैसे डिजाइन करते हैं और बड़े पैमाने पर वेब विकास के लिए स्वच्छ वास्तुकला क्यों आवश्यक है।",
+  Telugu:
+    "ఈరోజు ప్రత్యక్ష తరగతి సెషన్‌కు స్వాగతం. ఈరోజు, మేము స్కేలబుల్ సిస్టమ్‌లను ఎలా డిజైన్ చేస్తాము మరియు పెద్ద ఎత్తున వెబ్ అభివృద్ధికి క్లీన్ ఆర్కిటెక్చర్ ఎందుకు అవసరమో అన్వేషిస్తాము.",
+  Spanish:
+    "Bienvenidos a la sesión de clase en vivo de hoy. Hoy exploraremos cómo diseñamos sistemas escalables y por qué la arquitectura limpia es esencial para el desarrollo web a gran escala.",
+  Bengali:
+    "আজকের লাইভ ক্লাসরুম সেশনে স্বাগতম। আজ, আমরা অন্বেষণ করব কীভাবে আমরা স্কেলযোগ্য সিস্টেমগুলি ডিজাইন করি এবং কেন বড় আকারের ওয়েব বিকাশের জন্য পরিষ্কার আর্কিটেকচার অপরিহার্য।",
+};
+
+const translations: Record<string, string> = {
+  English: "Translated content → appears here in your language",
+  Hindi: "क्वेरी स्कीमा → डेटाबेस स्कीमा संरचना",
+  Telugu: "ప్రశ్న స్కీమా → డేటాబేస్ స్కీమా నిర్మాణం",
+  Spanish: "Esquema de consulta → Estructura del esquema de base de datos",
+  Bengali: "কোয়েরি স্কিমা → ডেটাবেস স্কিমা স্ট্রাকচার",
+};
+
+const sideCards = [
+  {
+    title: "Synchronized Audio",
+    desc: "Listen to classroom lectures in localized regional dialects without lag.",
+  },
+  {
+    title: "Multi-language Resources",
+    desc: "Download textbooks compiled in Hindi, Telugu, and Dogri formats.",
+  },
+  {
+    title: "AI Learning Assistant",
+    desc: "Ask programming questions in your local dialect. Our agent answers in the same language.",
+  },
 ];
 
 const SolutionSection: React.FC = () => {
- return (
- <section id="solutions" className="py-24 md:py-40 bg-white [#020617] transition-colors duration-300 relative overflow-hidden">
- {/* Premium Deep Ambient Blur */}
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-full blur-[60px] pointer-events-none" />
- 
- <div className="max-w-[1400px] mx-auto px-6 relative z-10">
- <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
- 
- <motion.div 
- initial={{ opacity: 0, x: -40 }}
- whileInView={{ opacity: 1, x: 0 }}
- viewport={{ once: true, margin: "-100px" }}
- transition={{ duration: 0.8 }}
- className="lg:col-span-5 flex flex-col justify-center"
- >
- <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 /20 border border-emerald-100 /30 text-emerald-600 font-bold tracking-widest uppercase text-xs mb-8 shadow-sm w-max">
- <Zap className="w-4 h-4" />
- Unified Solution
- </div>
- 
- <h2 className="text-5xl lg:text-6xl font-black text-slate-900 mb-8 leading-[1.05] tracking-tight">
- The Ultimate <br/>
- <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">Operating System</span>
- </h2>
- <p className="text-xl text-slate-600 mb-12 leading-relaxed font-medium">
- We unify fragmented school processes into one synchronized digital ecosystem. A single platform that connects students, teachers, parents, and administrators effortlessly.
- </p>
- 
- <ul className="space-y-4">
- {solutions.map((item, idx) => (
- <motion.li 
- key={idx}
- initial={{ opacity: 0, y: 20 }}
- whileInView={{ opacity: 1, y: 0 }}
- viewport={{ once: true }}
- transition={{ delay: 0.1 * idx, duration: 0.5 }}
- className="flex items-center gap-6 bg-slate-50/50 /50 p-5 rounded-2xl border border-slate-200/50 /50 hover:bg-slate-100 :bg-slate-800 transition-colors group"
- >
- <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/5 ring-1 ring-slate-100 group-hover:scale-110 transition-transform">
- {item.icon}
- </div>
- <div>
- <h4 className="font-bold text-slate-900 text-lg tracking-tight">{item.title}</h4>
- <p className="text-sm text-slate-500 font-medium">{item.desc}</p>
- </div>
- </motion.li>
- ))}
- </ul>
- </motion.div>
+  const [activeLang, setActiveLang] = useState<string>("English");
 
- {/* Abstract OS Visualization (Premium execution) */}
- <motion.div 
- initial={{ opacity: 0, scale: 0.95 }}
- whileInView={{ opacity: 1, scale: 1 }}
- viewport={{ once: true }}
- transition={{ duration: 1 }}
- className="lg:col-span-7 relative h-[700px] w-full hidden lg:flex items-center justify-center perspective-[1200px]"
- >
- {/* Core Node */}
- <div className="absolute w-56 h-56 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-[3rem] flex items-center justify-center shadow-2xl shadow-emerald-500/30 z-30 ring-8 ring-white/50 /50 transform rotate-12 hover:rotate-0 transition-transform duration-700">
- <div className="text-center text-white">
- <Globe className="w-16 h-16 mx-auto mb-3 opacity-90" />
- <span className="font-black tracking-widest text-lg">CORE OS</span>
- </div>
- </div>
+  return (
+    <section className="viewport-content">
+      <div className="section-header mb-12">
+        <div className="flabel">Translation Engine</div>
 
- {/* Orbital Rings - static */}
- <div className="absolute w-[500px] h-[500px] border-[2px] border-dashed border-emerald-300/40 /40 rounded-full z-10" />
- <div className="absolute w-[700px] h-[700px] border border-slate-200 rounded-full z-0" />
- 
- {/* Floating Satellites - static */}
- <div className="absolute top-[15%] left-[10%] bg-white/80 /80 backdrop-blur-xl p-6 rounded-3xl border border-white/50 /50 shadow-2xl shadow-indigo-500/10 z-40">
- <Smartphone className="w-10 h-10 text-indigo-500 mb-3" />
- <p className="font-bold text-sm text-slate-900 tracking-tight">Parent Portal</p>
- <div className="mt-3 flex gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500"/><div className="w-10 h-2 bg-slate-200 rounded-full"/></div>
- </div>
- 
- <div className="absolute bottom-[15%] right-[10%] bg-white/80 /80 backdrop-blur-xl p-6 rounded-3xl border border-white/50 /50 shadow-2xl shadow-teal-500/10 z-40">
- <MonitorDot className="w-10 h-10 text-teal-500 mb-3" />
- <p className="font-bold text-sm text-slate-900 tracking-tight">Teacher Dash</p>
- <div className="mt-3 flex gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500"/><div className="w-10 h-2 bg-slate-200 rounded-full"/></div>
- </div>
+        <h2 className="mt-3">
+          Real-time translation pipeline
+        </h2>
 
- <div className="absolute top-[30%] right-[0%] bg-slate-900 p-6 rounded-3xl shadow-2xl z-40">
- <BarChart3 className="w-10 h-10 text-rose-400 mb-3" />
- <p className="font-bold text-sm text-white tracking-tight">Admin Master</p>
- <div className="mt-3 flex gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500"/><div className="w-10 h-2 bg-slate-700 rounded-full"/></div>
- </div>
- </motion.div>
+        <p className="mt-4 max-w-2xl text-ink-soft">
+          We translate study files, audio guides, and classroom discussions
+          to bridge language barriers and make technical education accessible
+          to every learner.
+        </p>
+      </div>
 
- </div>
- </div>
- </section>
- );
+      <div className="grid-2">
+
+        {/* Main Card */}
+        <div className="bento-card" style={{ padding: 0 }}>
+
+          <div style={{ background: 'var(--bg-surface)', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid var(--ink)' }}>
+            <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>
+              Live Transcriber
+            </span>
+
+            <span style={{ fontSize: '0.75rem', color: 'var(--ink-mute)' }}>
+              AI Sync
+            </span>
+          </div>
+
+          <div style={{ padding: 24 }}>
+
+            {/* Language Tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+              {Object.keys(transcripts).map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => setActiveLang(lang)}
+                  className={
+                    activeLang === lang
+                      ? "btn btn-primary"
+                      : "btn"
+                  }
+                  style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
+
+            {/* Transcript */}
+            <div style={{ background: 'var(--bg)', border: '2px solid var(--ink)', padding: 16, fontSize: '0.9rem', lineHeight: 1.6, marginBottom: 16 }}>
+              &ldquo;{transcripts[activeLang]}&rdquo;
+            </div>
+
+            {/* Translation Output */}
+            <div style={{ background: 'var(--accent-soft)', borderLeft: '3px solid var(--accent)', padding: 12 }}>
+              <div style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ink-mute)', marginBottom: 4 }}>
+                Translation
+              </div>
+
+              <p style={{ fontSize: '0.9rem', lineHeight: 1.6, margin: 0 }}>
+                {translations[activeLang]}
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Side Cards */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {sideCards.map((card) => (
+            <div
+              key={card.title}
+              className="bento-card"
+              style={{ padding: 20 }}
+            >
+              <h4 style={{ fontSize: '1rem', marginBottom: 4 }}>
+                {card.title}
+              </h4>
+
+              <p style={{ fontSize: '0.9rem', color: 'var(--ink-soft)' }}>
+                {card.desc}
+              </p>
+            </div>
+          ))}
+
+        </div>
+
+      </div>
+    </section>
+  );
 };
 
 export default SolutionSection;
+

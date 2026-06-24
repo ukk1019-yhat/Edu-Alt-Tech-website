@@ -1,114 +1,69 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Users, GraduationCap, ArrowRight, BookOpen, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const PeerEducation: React.FC = () => {
- return (
- <div className="pt-32 pb-24 px-6 bg-slate
- -50 min-h-screen transition-colors duration-300">
- <div className="max-w-7xl mx-auto">
- 
- {/* Header */}
- <div className="text-center max-w-3xl mx-auto mb-20">
- <motion.div 
- initial={{ opacity: 0, y: -20 }}
- animate={{ opacity: 1, y: 0 }}
- className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 /30 text-blue-600 rounded-full text-sm font-bold mb-6"
- >
- <Users className="w-4 h-4" /> Alternative Learning Model
- </motion.div>
- <motion.h1 
- initial={{ opacity: 0, y: 30 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ delay: 0.1 }}
- className="text-5xl md:text-6xl font-bold text-slate-900 mb-6 leading-tight tracking-tight"
- >
- Peer-to-Peer <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-emerald-500">Education</span>
- </motion.h1>
- <motion.p 
- initial={{ opacity: 0, y: 30 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ delay: 0.2 }}
- className="text-xl text-slate-600 leading-relaxed"
- >
- Step outside the traditional classroom. We connect passionate mentors with driven learners to create a collaborative, execution-focused ecosystem.
- </motion.p>
- </div>
+  return (
+    <div className="viewport-content">
+      {/* Header */}
+      <div className="page-header">
+        <div className="flex items-center gap-2 mb-2">
+          
+          <span className="flabel" style={{ color: 'var(--accent)' }}>Alternative Learning Model</span>
+        </div>
+        <h1>Peer-to-Peer <span style={{ color: 'var(--accent)' }}>Education</span></h1>
+        <p>Step outside the traditional classroom. We connect passionate mentors with driven learners to create a collaborative, execution-focused ecosystem.</p>
+      </div>
 
- {/* Dual Paths */}
- <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
- 
- {/* Student Path */}
- <motion.div 
- initial={{ opacity: 0, x: -40 }}
- animate={{ opacity: 1, x: 0 }}
- transition={{ delay: 0.3 }}
- className="bg-white p-10 md:p-12 rounded-[3rem] border border-slate-200 shadow-xl shadow-slate-200/50 hover:-translate-y-2 transition-transform duration-300 flex flex-col"
- >
- <div className="w-16 h-16 bg-blue-100 /50 rounded-2xl flex items-center justify-center mb-8">
- <BookOpen className="w-8 h-8 text-blue-600 " />
- </div>
- <h2 className="text-3xl font-bold text-slate-900 mb-4">Learn as a Student</h2>
- <p className="text-slate-600 mb-8 flex-grow leading-relaxed">
- If you lack discipline or struggle with traditional curriculums, join as a learner. Get matched with peer-mentors, access structured Weekly Plans, and bridge your execution gap through accountability.
- </p>
- <ul className="space-y-4 mb-10">
- <li className="flex items-center gap-3 text-slate-700 font-medium">
- <Star className="w-5 h-5 text-emerald-500 flex-shrink-0" /> Real-time peer accountability
- </li>
- <li className="flex items-center gap-3 text-slate-700 font-medium">
- <Star className="w-5 h-5 text-emerald-500 flex-shrink-0" /> AI-generated structured roadmaps
- </li>
- <li className="flex items-center gap-3 text-slate-700 font-medium">
- <Star className="w-5 h-5 text-emerald-500 flex-shrink-0" /> Focus on deep execution
- </li>
- </ul>
- <Link 
- to="/enroll/student"
- className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-center flex items-center justify-center gap-2 transition-colors shadow-lg shadow-blue-500/30"
- >
- Enroll as a Student <ArrowRight className="w-5 h-5" />
- </Link>
- </motion.div>
+      {/* Dual Paths */}
+      <div className="grid-2">
+        {/* Student Path */}
+        <div className="bento-card flex flex-col">
+          <div className="flex items-center justify-center" style={{ width: 56, height: 56, border: '2px solid var(--ink)', background: 'var(--accent-soft)', marginBottom: 16 }}>
+            
+          </div>
+          <h2 style={{ margin: '0 0 8px' }}>Learn as a Student</h2>
+          <p style={{ flex: 1 }}>If you lack discipline or struggle with traditional curriculums, join as a learner. Get matched with peer-mentors, access structured Weekly Plans, and bridge your execution gap through accountability.</p>
+          <ul style={{ padding: 0, margin: '0 0 24px', listStyle: 'none' }}>
+            <li className="flex items-center gap-2" style={{ marginBottom: 6 }}>
+              <span style={{ color: 'var(--accent)' }}>→</span> Real-time peer accountability
+            </li>
+            <li className="flex items-center gap-2" style={{ marginBottom: 6 }}>
+              <span style={{ color: 'var(--accent)' }}>→</span> AI-generated structured roadmaps
+            </li>
+            <li className="flex items-center gap-2">
+              <span style={{ color: 'var(--accent)' }}>→</span> Focus on deep execution
+            </li>
+          </ul>
+          <Link to="/enroll/student" className="btn btn-primary flex items-center gap-2" style={{ textDecoration: 'none' }}>
+            Enroll as a Student →
+          </Link>
+        </div>
 
- {/* Teacher Path */}
- <motion.div 
- initial={{ opacity: 0, x: 40 }}
- animate={{ opacity: 1, x: 0 }}
- transition={{ delay: 0.4 }}
- className="bg-white p-10 md:p-12 rounded-[3rem] border border-slate-200 shadow-xl shadow-slate-200/50 hover:-translate-y-2 transition-transform duration-300 flex flex-col"
- >
- <div className="w-16 h-16 bg-emerald-100 /50 rounded-2xl flex items-center justify-center mb-8">
- <GraduationCap className="w-8 h-8 text-emerald-600 " />
- </div>
- <h2 className="text-3xl font-bold text-slate-900 mb-4">Join as a Teacher</h2>
- <p className="text-slate-600 mb-8 flex-grow leading-relaxed">
- Share your expertise in a modern format. Whether you teach coding, languages, or core sciences, become a peer-mentor and monetize your skills while guiding students to absolute success.
- </p>
- <ul className="space-y-4 mb-10">
- <li className="flex items-center gap-3 text-slate-700 font-medium">
- <Star className="w-5 h-5 text-emerald-500 flex-shrink-0" /> Flexible, modern curriculum integration
- </li>
- <li className="flex items-center gap-3 text-slate-700 font-medium">
- <Star className="w-5 h-5 text-emerald-500 flex-shrink-0" /> Analytics dashboard to track student ROI
- </li>
- <li className="flex items-center gap-3 text-slate-700 font-medium">
- <Star className="w-5 h-5 text-emerald-500 flex-shrink-0" /> Grow your personal educator brand
- </li>
- </ul>
- <Link 
- to="/enroll/teacher"
- className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold text-center flex items-center justify-center gap-2 transition-colors shadow-lg shadow-emerald-500/30"
- >
- Enroll as a Teacher <ArrowRight className="w-5 h-5" />
- </Link>
- </motion.div>
-
- </div>
- </div>
- </div>
- );
+        {/* Teacher Path */}
+        <div className="bento-card flex flex-col">
+          <div className="flex items-center justify-center" style={{ width: 56, height: 56, border: '2px solid var(--ink)', background: 'var(--accent-soft)', marginBottom: 16 }}>
+            
+          </div>
+          <h2 style={{ margin: '0 0 8px' }}>Join as a Teacher</h2>
+          <p style={{ flex: 1 }}>Share your expertise in a modern format. Whether you teach coding, languages, or core sciences, become a peer-mentor and monetize your skills while guiding students to absolute success.</p>
+          <ul style={{ padding: 0, margin: '0 0 24px', listStyle: 'none' }}>
+            <li className="flex items-center gap-2" style={{ marginBottom: 6 }}>
+              <span style={{ color: 'var(--accent)' }}>→</span> Flexible, modern curriculum integration
+            </li>
+            <li className="flex items-center gap-2" style={{ marginBottom: 6 }}>
+              <span style={{ color: 'var(--accent)' }}>→</span> Analytics dashboard to track student ROI
+            </li>
+            <li className="flex items-center gap-2">
+              <span style={{ color: 'var(--accent)' }}>→</span> Grow your personal educator brand
+            </li>
+          </ul>
+          <Link to="/enroll/teacher" className="btn btn-primary flex items-center gap-2" style={{ textDecoration: 'none' }}>
+            Enroll as a Teacher →
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default PeerEducation;

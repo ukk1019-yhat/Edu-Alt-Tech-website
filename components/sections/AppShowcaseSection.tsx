@@ -1,99 +1,283 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Download, Play } from 'lucide-react';
+
+import React, { useState } from 'react';
 
 const AppShowcaseSection: React.FC = () => {
- return (
- <section className="py-24 bg-slate-900 text-white relative overflow-hidden">
- {/* Abstract Background */}
- <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/40 via-transparent to-transparent" />
- 
- <div className="max-w-7xl mx-auto px-6 relative z-10">
- <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
- 
- <motion.div 
- initial={{ opacity: 0, y: 30 }}
- whileInView={{ opacity: 1, y: 0 }}
- viewport={{ once: true }}
- >
- <div className="inline-block px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-emerald-400 font-semibold text-sm mb-6">
- Coming Soon to Play Store
- </div>
- <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
- The Entire School <br/> in Your Pocket
- </h2>
- <p className="text-lg text-slate-300 mb-10 leading-relaxed">
- Experience the power of the Edu Alt Tech ecosystem on the go. Our native mobile applications provide students and parents with instant access to grades, timetables, and notifications.
- </p>
- <div className="flex flex-col sm:flex-row gap-4">
- <button className="flex items-center justify-center gap-3 bg-white text-slate-900 px-6 py-4 rounded-xl font-bold hover:bg-slate-200 transition-colors opacity-50 cursor-not-allowed">
- <Play className="w-6 h-6" />
- <div className="text-left leading-tight">
- <div className="text-[10px] uppercase">Get it on</div>
- <div className="text-lg">Google Play</div>
- </div>
- </button>
- <button className="flex items-center justify-center gap-3 bg-slate-800 text-white px-6 py-4 rounded-xl font-bold border border-slate-700 hover:bg-slate-700 transition-colors opacity-50 cursor-not-allowed">
- <Download className="w-6 h-6" />
- <div className="text-left leading-tight">
- <div className="text-[10px] uppercase">Download on the</div>
- <div className="text-lg">App Store</div>
- </div>
- </button>
- </div>
- </motion.div>
+  const [screen, setScreen] = useState<'dash' | 'tasks' | 'notes'>('dash');
 
- {/* Phone mockups */}
- <motion.div 
- initial={{ opacity: 0, scale: 0.9 }}
- whileInView={{ opacity: 1, scale: 1 }}
- viewport={{ once: true }}
- transition={{ duration: 0.8 }}
- className="flex justify-center lg:justify-end gap-6 relative h-[500px]"
- >
- {/* Phone 1 */}
- <div className="relative w-64 h-[500px] bg-slate-800 rounded-[3rem] border-8 border-slate-700 shadow-2xl overflow-hidden -rotate-6 transform translate-y-8 z-10 glass">
- <div className="absolute top-0 inset-x-0 h-6 bg-slate-700 rounded-b-3xl mx-auto w-1/3 z-20" />
- <div className="p-4 pt-10 h-full bg-slate-900 border border-slate-800 animate-pulse">
- <div className="flex gap-4 mb-6">
- <div className="w-12 h-12 rounded-full bg-emerald-500/20" />
- <div className="space-y-2 flex-grow">
- <div className="h-4 bg-slate-700 rounded w-1/2" />
- <div className="h-3 bg-slate-800 rounded w-1/3" />
- </div>
- </div>
- <div className="space-y-4">
- <div className="h-32 bg-slate-800 rounded-2xl" />
- <div className="h-20 bg-slate-800 rounded-2xl" />
- <div className="h-20 bg-slate-800 rounded-2xl" />
- </div>
- </div>
- </div>
+  const [streakCount, setStreakCount] = useState(7);
+  const [progressVal, setProgressVal] = useState(62);
 
- {/* Phone 2 */}
- <div className="relative w-64 h-[500px] bg-slate-800 rounded-[3rem] border-8 border-slate-700 shadow-2xl overflow-hidden rotate-6 transform -translate-y-8 z-20 glass">
- <div className="absolute top-0 inset-x-0 h-6 bg-slate-700 rounded-b-3xl mx-auto w-1/3 z-20" />
- <div className="p-4 pt-10 h-full bg-indigo-950 border border-indigo-900 animate-pulse">
- <div className="h-4 bg-indigo-800 rounded w-1/3 mx-auto mb-6" />
- <div className="flex gap-2 mb-6">
- <div className="h-24 bg-emerald-500/20 rounded-2xl w-1/2" />
- <div className="h-24 bg-rose-500/20 rounded-2xl w-1/2" />
- </div>
- <div className="space-y-3">
- <div className="h-12 bg-indigo-900 rounded-xl" />
- <div className="h-12 bg-indigo-900 rounded-xl" />
- <div className="h-12 bg-indigo-900 rounded-xl" />
- <div className="h-12 bg-indigo-900 rounded-xl" />
- </div>
- </div>
- </div>
- 
- </motion.div>
+  const [notifications, setNotifications] = useState<string[]>([
+    'Mentor session starts in 30 minutes',
+    'Assignment feedback available'
+  ]);
 
- </div>
- </div>
- </section>
- );
+  const [student15Status, setStudent15Status] =
+    useState<'Idle' | 'Flagged'>('Idle');
+
+  const incrementStreak = () => {
+    setStreakCount(prev => prev + 1);
+    setProgressVal(prev => Math.min(prev + 3, 95));
+  };
+
+  const sendBroadcast = () => {
+    setNotifications(prev => [
+      'New class announcement delivered',
+      ...prev
+    ]);
+  };
+
+  const toggleStudent15 = () => {
+    setStudent15Status(prev =>
+      prev === 'Idle' ? 'Flagged' : 'Idle'
+    );
+  };
+
+  return (
+    <section className="viewport-content">
+      <div className="section-header">
+        <div className="flabel">Mobile Experience</div>
+
+        <h2 className="mt-12 mb-8">
+          Learning and teaching on the move
+        </h2>
+
+        <p>
+          Purpose-built mobile workspaces for students and educators.
+          Focused, distraction-free and optimized for daily use.
+        </p>
+      </div>
+
+      <div className="phones">
+        {/* STUDENT PHONE */}
+        <div className="phone">
+          <div
+            style={{
+              width: 48,
+              height: 4,
+              background: 'var(--ink)',
+              margin: '0 auto 12px'
+            }}
+          />
+
+          <div className="phone-screen">
+            {screen === 'dash' && (
+              <>
+                <div className="flabel mb-8">
+                  Study Streak
+                </div>
+
+                <div
+                  style={{
+                    fontSize: '1.5rem',
+                    fontWeight: 700,
+                    lineHeight: 1,
+                    marginBottom: 12
+                  }}
+                >
+                  {streakCount} DAYS
+                </div>
+
+                <button
+                  className="btn btn-xs btn-full"
+                  onClick={incrementStreak}
+                >
+                  Log Study Session
+                </button>
+
+                <div className="asc-sm" />
+
+                <div className="flabel mb-8">
+                  Course Progress
+                </div>
+
+                <div className="text-xs text-ink-soft mb-8">
+                  Full Stack Engineering · {progressVal}%
+                </div>
+
+                <div
+                  style={{
+                    height: 8,
+                    border: '2px solid var(--ink)',
+                    background: 'var(--bg)'
+                  }}
+                >
+                  <div
+                    style={{
+                      height: '100%',
+                      width: `${progressVal}%`,
+                      background: 'var(--accent)'
+                    }}
+                  />
+                </div>
+
+                <div className="asc-sm" />
+
+                <div className="flabel mb-8">
+                  Notifications
+                </div>
+
+                <div className="flex flex-col gap-8">
+                  {notifications.map((item, index) => (
+                    <div
+                      key={index}
+                      className="p-8"
+                      style={{
+                        border: '2px solid var(--ink)',
+                        background: 'var(--bg-surface)',
+                        fontSize: '.65rem'
+                      }}
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {screen === 'tasks' && (
+              <>
+                <div className="flabel mb-12">
+                  Assignments
+                </div>
+
+                <div className="flex flex-col gap-12 text-xs">
+                  <label className="flex items-center gap-8 cursor-pointer">
+                    <input type="checkbox" defaultChecked />
+                    <span
+                      style={{
+                        textDecoration: 'line-through',
+                        opacity: .6
+                      }}
+                    >
+                      Authentication Module
+                    </span>
+                  </label>
+
+                  <label className="flex items-center gap-8 cursor-pointer">
+                    <input type="checkbox" />
+                    <span>Database Relationships</span>
+                  </label>
+
+                  <label className="flex items-center gap-8 cursor-pointer">
+                    <input type="checkbox" />
+                    <span>API Integration Lab</span>
+                  </label>
+                </div>
+              </>
+            )}
+
+            {screen === 'notes' && (
+              <>
+                <div className="flabel mb-12">
+                  Quick Notes
+                </div>
+
+                <textarea
+                  className="input"
+                  style={{
+                    minHeight: 210,
+                    resize: 'none'
+                  }}
+                  placeholder="Capture ideas, reminders or revision notes..."
+                />
+              </>
+            )}
+          </div>
+
+          <div className="phone-tabs">
+            <button
+              className={`phone-tab-btn ${screen === 'dash' ? 'active' : ''}`}
+              onClick={() => setScreen('dash')}
+            >
+              Home
+            </button>
+
+            <button
+              className={`phone-tab-btn ${screen === 'tasks' ? 'active' : ''}`}
+              onClick={() => setScreen('tasks')}
+            >
+              Tasks
+            </button>
+
+            <button
+              className={`phone-tab-btn ${screen === 'notes' ? 'active' : ''}`}
+              onClick={() => setScreen('notes')}
+            >
+              Notes
+            </button>
+          </div>
+        </div>
+
+        {/* TEACHER PHONE */}
+        <div className="phone">
+          <div
+            style={{
+              width: 48,
+              height: 4,
+              background: 'var(--ink)',
+              margin: '0 auto 12px'
+            }}
+          />
+
+          <div className="phone-screen">
+            <div className="flabel mb-8">
+              Live Classroom
+            </div>
+
+            <div
+              className="p-8 mb-12"
+              style={{
+                border: '2px solid var(--ink)',
+                background: 'var(--bg-surface)'
+              }}
+            >
+              <div className="flex justify-between text-xs">
+                <span>Aarav</span>
+                <span className="text-accent">ACTIVE</span>
+              </div>
+
+              <div
+                className="flex justify-between text-xs mt-8"
+                style={{
+                  borderTop: '2px dashed var(--rule-soft)',
+                  paddingTop: 8
+                }}
+              >
+                <span>Maya</span>
+
+                <span
+                  className={
+                    student15Status === 'Flagged'
+                      ? 'text-danger'
+                      : 'text-ink-mute'
+                  }
+                >
+                  {student15Status}
+                </span>
+              </div>
+            </div>
+
+            <button
+              className="btn btn-xs btn-full"
+              onClick={sendBroadcast}
+            >
+              Broadcast Update
+            </button>
+
+            <button
+              className="btn btn-xs btn-full mt-8"
+              onClick={toggleStudent15}
+            >
+              {student15Status === 'Flagged'
+                ? 'Clear Flag'
+                : 'Flag Student'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 };
 
 export default AppShowcaseSection;

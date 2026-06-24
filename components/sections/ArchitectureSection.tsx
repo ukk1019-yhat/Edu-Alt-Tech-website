@@ -1,65 +1,46 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Server, Smartphone, MonitorSmartphone, Shield, ArrowRight } from 'lucide-react';
-
-const flows = [
- { icon: Smartphone, label: 'Student App', connection: 'Backend API', destIcon: Server },
- { icon: MonitorSmartphone, label: 'Teacher Panel', connection: 'Analytics Engine', destIcon: Server },
- { icon: Shield, label: 'Admin Dashboard', connection: 'Full System Control', destIcon: Server },
-];
+import React from "react";
 
 const ArchitectureSection: React.FC = () => {
- return (
- <section className="py-24 bg-slate-50 transition-colors duration-300">
- <div className="max-w-7xl mx-auto px-6">
- <div className="text-center max-w-2xl mx-auto mb-16">
- <p className="text-blue-500 font-semibold tracking-wide uppercase text-sm mb-3">Enterprise-Grade</p>
- <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">Robust Architecture</h2>
- <p className="text-lg text-slate-600 ">
- Secure, scalable, and built on an interconnected system designed for high availability.
- </p>
- </div>
+  return (
+    <section className="viewport-content">
+      <div style={{ maxWidth: 600, margin: '0 auto 48px', textAlign: 'center' }}>
+        <h2 style={{ marginTop: 12 }}>Architecture overview</h2>
+      </div>
 
- <div className="max-w-4xl mx-auto">
- <div className="flex flex-col gap-6">
- {flows.map((flow, idx) => (
- <motion.div 
- key={idx}
- initial={{ opacity: 0, y: 20 }}
- whileInView={{ opacity: 1, y: 0 }}
- viewport={{ once: true }}
- transition={{ duration: 0.5, delay: idx * 0.15 }}
- className="flex flex-col sm:flex-row items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-slate-100 /50"
- >
- {/* Source */}
- <div className="flex flex-col border border-slate-100 bg-slate-50 w-48 py-6 rounded-xl items-center justify-center shadow-inner">
- <flow.icon className="w-8 h-8 text-indigo-500 mb-3" />
- <span className="font-bold text-slate-900 ">{flow.label}</span>
- </div>
+      <div style={{ maxWidth: 800, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
- {/* Connection */}
- <div className="flex-1 flex items-center justify-center relative py-8 sm:py-0 w-full sm:w-auto">
- <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-dashed bg-slate-200 -translate-y-1/2 sm:block hidden" />
- <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-dashed bg-slate-200 -translate-x-1/2 sm:hidden block" />
- 
- <div className="relative z-10 bg-indigo-50 /30 text-indigo-600 px-4 py-2 rounded-full border border-indigo-100 /50 text-sm font-semibold flex items-center gap-2">
- {flow.connection}
- <ArrowRight className="w-4 h-4 hidden sm:block" />
- </div>
- </div>
+        <div className="bento-card" style={{ textAlign: 'center', padding: 20 }}>
+          <div style={{ fontWeight: 600, marginTop: 8 }}>Mobile Apps</div>
+          <p style={{ fontSize: '0.85rem', marginTop: 4, color: 'var(--ink-soft)' }}>
+            Student and teacher native mobile interfaces
+          </p>
+        </div>
 
- {/* Destination */}
- <div className="flex flex-col border border-slate-100 bg-slate-50 w-48 py-6 rounded-xl items-center justify-center shadow-inner">
- <flow.destIcon className="w-8 h-8 text-emerald-500 mb-3" />
- <span className="font-bold text-slate-900 text-center px-2">Centralized Database</span>
- </div>
- </motion.div>
- ))}
- </div>
- </div>
- </div>
- </section>
- );
+        <div style={{ textAlign: 'center', fontSize: '0.85rem', color: 'var(--ink-mute)' }}>
+          ↓ API Gateway ↓
+        </div>
+
+        <div className="bento-card" style={{ textAlign: 'center', padding: 20, borderColor: 'var(--accent)', background: 'var(--accent-soft)' }}>
+          <div style={{ fontWeight: 600, marginTop: 8 }}>EduAltTech Core</div>
+          <p style={{ fontSize: '0.85rem', marginTop: 4, color: 'var(--ink-soft)' }}>
+            Translation pipeline, AI assistant, and sync engine
+          </p>
+        </div>
+
+        <div style={{ textAlign: 'center', fontSize: '0.85rem', color: 'var(--ink-mute)' }}>
+          ↓ Database ↓
+        </div>
+
+        <div className="bento-card" style={{ textAlign: 'center', padding: 20 }}>
+          <div style={{ fontWeight: 600, marginTop: 8 }}>Data Layer</div>
+          <p style={{ fontSize: '0.85rem', marginTop: 4, color: 'var(--ink-soft)' }}>
+            Authentication, storage, and curriculum databases
+          </p>
+        </div>
+
+      </div>
+    </section>
+  );
 };
 
 export default ArchitectureSection;

@@ -1,71 +1,76 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { TrendingUp, Users, Clock } from 'lucide-react';
+import React from "react";
 
 const stats = [
- { icon: TrendingUp, value: '45%', label: 'Increase in Engagement' },
- { icon: Clock, value: '12hrs', label: 'Admin Time Saved/Week' },
- { icon: Users, value: '98%', label: 'Parent Satisfaction' }
+  { value: "45%", label: "Increase in Engagement" },
+  { value: "12 hrs", label: "Admin Time Saved / Week" },
+  { value: "98%", label: "Parent Satisfaction" },
 ];
 
 const CaseStudySection: React.FC = () => {
- return (
- <section className="py-24 bg-slate-900 text-white relative overflow-hidden">
- <div className="absolute inset-0 bg-blue-600/10 mix-blend-overlay" />
- 
- <div className="max-w-7xl mx-auto px-6 relative z-10">
- <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
- 
- <motion.div 
- initial={{ opacity: 0, scale: 0.95 }}
- whileInView={{ opacity: 1, scale: 1 }}
- viewport={{ once: true }}
- className="rounded-[2.5rem] bg-slate-800/50 border border-slate-700/50 p-8 md:p-12 glass"
- >
- <h3 className="text-slate-400 font-semibold uppercase tracking-widest text-sm mb-4">Case Study</h3>
- <h4 className="text-3xl font-bold mb-6">"Helping schools improve student tracking and engagement"</h4>
- <p className="text-slate-300 leading-relaxed mb-8">
- "Before Edu Alt Tech, we relied on disconnected WhatsApp groups, paper diaries, and manual Excel sheets. We had no real-time transparency into how our students were actually performing.
- <br/><br/>
- After implementing the School OS, our completely digitized workflow allowed teachers to focus on teaching rather than administrative paperwork. The parents love the mobile app!"
- </p>
- <div className="flex items-center gap-4">
- <div className="w-12 h-12 rounded-full bg-slate-700" />
- <div>
- <p className="font-bold">Dr. Sharma</p>
- <p className="text-sm text-slate-400">Principal, Modern High School</p>
- </div>
- </div>
- </motion.div>
+  return (
+    <section className="viewport-content">
+      <div className="grid-2" style={{ alignItems: 'center' }}>
 
- <motion.div 
- initial={{ opacity: 0, x: 30 }}
- whileInView={{ opacity: 1, x: 0 }}
- viewport={{ once: true }}
- >
- <h2 className="text-4xl md:text-5xl font-bold mb-12">The Impact</h2>
- 
- <div className="space-y-6">
- {stats.map((stat, idx) => (
- <div key={idx} className="flex items-center gap-6">
- <div className="w-16 h-16 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center">
- <stat.icon className="w-8 h-8" />
- </div>
- <div>
- <h3 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
- {stat.value}
- </h3>
- <p className="text-slate-400 text-lg">{stat.label}</p>
- </div>
- </div>
- ))}
- </div>
- </motion.div>
+        {/* Left — Testimonial */}
+        <div className="bento-card" style={{ minHeight: '100%' }}>
+          <div className="flabel" style={{ marginBottom: 16 }}>
+            Case Study
+          </div>
 
- </div>
- </div>
- </section>
- );
+          <h3 style={{ marginBottom: 24 }}>
+            Helping schools improve student
+            engagement and transparency
+          </h3>
+
+          <p>
+            Before Edu Alt Tech, we relied on disconnected
+            WhatsApp groups, paper diaries and spreadsheets.
+            There was no visibility into how students were
+            progressing.
+          </p>
+
+          <p className="mt-16">
+            After implementing School OS, teachers spend
+            less time on administration and more time
+            teaching. Parents now have real-time visibility
+            through the mobile application.
+          </p>
+
+          <div className="case-study-author">
+            <div className="case-avatar">DS</div>
+            <div>
+              <h4>Dr. Sharma</h4>
+              <p className="text-sm text-ink-mute" style={{ margin: 0 }}>
+                Principal, Modern High School
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Right — Stats */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div className="section-header" style={{ marginBottom: 4 }}>
+            <div className="flabel">Results</div>
+            <h2 className="mt-12">Measurable impact</h2>
+            <p className="mt-12" style={{ color: 'var(--ink-soft)' }}>
+              Schools adopting Edu Alt Tech experience
+              higher engagement and dramatically lower
+              administrative overhead.
+            </p>
+          </div>
+
+          {stats.map((stat, i) => (
+            <div key={i} className="bento-card" style={{ padding: 28 }}>
+              <div className="stat-value accented" style={{ marginBottom: 8 }}>
+                {stat.value}
+              </div>
+              <p style={{ margin: 0 }}>{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 };
 
 export default CaseStudySection;

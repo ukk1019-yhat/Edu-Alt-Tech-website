@@ -1,194 +1,150 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Loader2, Eye, EyeOff } from 'lucide-react';
-import { auth, db, createUserWithEmailAndPassword, updateProfile, sendEmailVerification, signOut, doc, setDoc, serverTimestamp, collection, query, where, getDocs } from '../lib/firebase';
-import { motion } from 'framer-motion';
+import { auth, db, createUserWithEmailAndPassword, updateProfile, sendEmailVerification, doc, setDoc, serverTimestamp, collection, query, where, getDocs } from '../lib/firebase';
 
 const Signup: React.FC = () => {
- const [name, setName] = useState('');
- const [email, setEmail] = useState('');
- const [phone, setPhone] = useState('');
- const [password, setPassword] = useState('');
- const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
- const [showPassword, setShowPassword] = useState(false);
- const [showConfirmPassword, setShowConfirmPassword] = useState(false);
- const [loading, setLoading] = useState(false);
- const [error, setError] = useState('');
+  const navigate = useNavigate();
 
- const navigate = useNavigate();
- const formRef = useRef<HTMLDivElement>(null);
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
- const handleSignup = async (e: React.FormEvent) => {
- e.preventDefault();
- setLoading(true);
- setError('');
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
- if (password !== confirmPassword) {
- setError('Passwords do not match');
- setLoading(false);
- return;
- }
- try {
- const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const q = query(collection(db, 'users'), where('phone', '==', phone));
+      const querySnapshot = await getDocs(q);
 
- // Now that we are signed in, we can check for phone uniqueness
- const q = query(collection(db, 'users'), where('phone', '==', phone));
- const querySnapshot = await getDocs(q);
- 
- if (!querySnapshot.empty) {
- // If phone taken, we unfortunately created the auth account already.
- // But for dev simplicity, we can just throw or delete it.
- // We'll throw an error and let the user know.
- setError('Phone number is already registered. Please use another one.');
- setLoading(false);
- return;
- }
+      if (!querySnapshot.empty) {
+        setError('Phone number is already registered. Please use another one.');
+        setLoading(false);
+        return;
+      }
 
-  if (!userCredential.user) {
-  setError('Account creation failed. Please check your email confirmation settings and try again.');
-  setLoading(false);
-  return;
-  }
-  // Save additional user info to Firestore
-  await setDoc(doc(db, 'users', userCredential.user.uid), {
-  name,
-  email,
-  phone,
-  createdAt: serverTimestamp()
-  });
+      if (!userCredential.user) {
+        setError('Account creation failed. Please check your email confirmation settings and try again.');
+        setLoading(false);
+        return;
+      }
+      await setDoc(doc(db, 'users', userCredential.user.uid), {
+        name,
+        email,
+        phone,
+        createdAt: serverTimestamp()
+      });
 
+      await updateProfile(userCredential.user, { displayName: name });
 
- // Update the user profile with the name
- await updateProfile(userCredential.user, {
- displayName: name
- });
+      await sendEmailVerification(userCredential.user);
 
- // Send verification email (silent)
- await sendEmailVerification(userCredential.user);
+      if (email === 'ukkukk97@gmail.com' || email === 'umakrishnakanthchokkapu15@gmail.com') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (err: any) {
+      if (err.code === 'auth/email-already-in-use') {
+        setError('User already exists. Please sign in');
+      } else if (err.code === 'auth/weak-password') {
+        setError('Password is too weak. Use at least 6 characters.');
+      } else {
+        setError(err.message || 'Failed to create account. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const inputWrap = (input: React.ReactNode, show: boolean, toggle: () => void) => (
+    <div style={{ position: 'relative' }}>
+      {input}
+      <button type="button" onClick={toggle} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem', color: 'var(--ink-mute)', padding: 0, lineHeight: 1 }}>
+        {show ? 'Hide' : 'Show'}
+      </button>
+    </div>
+  );
 
+  return (
+    <div className="auth-page">
+      <div className="auth-card">
+        <Link to="/" className="btn btn-sm btn-secondary" style={{ marginBottom: 24 }}>
+          Back to Home
+        </Link>
 
- // navigate(`/verify?email=${encodeURIComponent(email)}`);
- 
- // Auto-login to dashboard instead
- if (email === 'ukkukk97@gmail.com' || email === 'umakrishnakanthchokkapu15@gmail.com') {
- navigate('/admin');
- } else {
- navigate('/dashboard');
- }
-  } catch (err: any) {
-  console.error('Signup error:', err);
-  if (err.code === 'auth/email-already-in-use') {
-  setError('User already exists. Please sign in');
-  } else if (err.code === 'auth/weak-password') {
-  setError('Password is too weak. Use at least 6 characters.');
-  } else if (err.code === 'auth/invalid-email') {
-  setError('Invalid email address.');
-  } else if (err.code === 'auth/configuration-not-found') {
-  setError('Authentication is not configured. Please contact support.');
-  } else if (err.message?.includes('index')) {
-  setError('Account created but phone verification unavailable. Contact support.');
-  } else if (err.name === 'AuthRetryableFetchError') {
-  setError('Signup service unavailable (server error). Please check Supabase SMTP settings or disable email confirmation.');
-  } else {
-  setError(err.message || 'Failed to create account. Please try again.');
-  }
-  } finally {
- setLoading(false);
- }
- };
+        <div className="bento-card" style={{ gap: 20 }}>
+          <div>
+            <h1>Create Account</h1>
+            <p>Join the world's most disciplined learners.</p>
+          </div>
 
- return (
- <div className="min-h-screen pt-32 pb-24 px-6 bg-slate-50 [#020617] flex flex-col items-center relative overflow-hidden">
- <div className="absolute top-1/2 left-1/2 w-[800px] h-[800px] -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-emerald-500/5 to-indigo-500/5 /10 /10 rounded-full blur-[60px] pointer-events-none" />
- <Link to="/" className="mb-12 inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 :text-white transition-colors font-medium relative z-10">
- <ArrowLeft className="w-4 h-4" /> Back to Home
- </Link>
+          {error && (
+            <div className="badge badge-danger w-full text-center text-sm" style={{ padding: '10px 14px' }}>
+              {error}
+            </div>
+          )}
 
- <motion.div
- ref={formRef}
- initial={{ opacity: 0, y: 40, scale: 0.97 }}
- animate={{ opacity: 1, y: 0, scale: 1 }}
- transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
- className="w-full max-w-xl bg-white/90 /80 backdrop-blur-2xl p-10 md:p-12 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-200/50 /50 relative z-10"
- >
- <div className="text-center mb-10">
- <h1 className="text-4xl font-black text-slate-900 mb-3 tracking-tight">Create Account</h1>
- <p className="text-slate-500 font-medium">Join the world's most disciplined learners.</p>
- </div>
+          <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div className="form-group">
+              <label className="form-label">Full Name</label>
+              <input type="text" className="input" required value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" />
+            </div>
 
- {error && (
- <div className="mb-6 p-4 bg-red-50 /30 text-red-600 rounded-xl border border-red-100 text-sm font-medium md:col-span-2">
- {error}
- </div>
- )}
+            <div className="form-group">
+              <label className="form-label">Email</label>
+              <input type="email" className="input" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" />
+            </div>
 
- <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSignup}>
- <div className="md:col-span-2">
- <label className="block text-sm font-bold text-slate-700 mb-2">Full Name</label>
- <input
- type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe"
- className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-200 focus:border-[#90EE90] focus:ring-4 focus:ring-emerald-100 :ring-emerald-900/40 outline-none transition-all"
- />
- </div>
- <div className="md:col-span-2">
- <label className="block text-sm font-bold text-slate-700 mb-2">Email</label>
- <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com"
- className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-200 focus:border-[#90EE90] focus:ring-4 focus:ring-emerald-100 :ring-emerald-900/40 outline-none transition-all"
- />
- </div>
- <div>
- <label className="block text-sm font-bold text-slate-700 mb-2">Phone</label>
- <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91"
- className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-200 focus:border-[#90EE90] focus:ring-4 focus:ring-emerald-100 :ring-emerald-900/40 outline-none transition-all"
- />
- </div>
- <div>
- <label className="block text-sm font-bold text-slate-700 mb-2">Password</label>
- <div className="relative">
- <input type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••"
- className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-200 focus:border-[#90EE90] focus:ring-4 focus:ring-emerald-100 :ring-emerald-900/40 outline-none transition-all pr-12"
- />
- <button
- type="button"
- onClick={() => setShowPassword(!showPassword)}
- className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 :text-slate-200 transition-colors"
- >
- {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
- </button>
- </div>
- </div>
- <div>
- <label className="block text-sm font-bold text-slate-700 mb-2">Confirm Password</label>
- <div className="relative">
- <input type={showConfirmPassword ? "text" : "password"} required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••"
- className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-200 focus:border-[#90EE90] focus:ring-4 focus:ring-emerald-100 :ring-emerald-900/40 outline-none transition-all pr-12"
- />
- <button
- type="button"
- onClick={() => setShowConfirmPassword(!showConfirmPassword)}
- className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 :text-slate-200 transition-colors"
- >
- {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
- </button>
- </div>
- </div>
+            <div className="form-group">
+              <label className="form-label">Phone</label>
+              <input type="tel" className="input" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91" />
+            </div>
 
- <div className="md:col-span-2 pt-4">
- <button type="submit" disabled={loading}
- className="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-slate-800 :bg-emerald-500 transition-colors shadow-lg text-lg flex items-center justify-center gap-2"
- >
- {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Create Account'}
- </button>
- <p className="text-center mt-6 text-slate-500 text-sm">
- Already have an account? <Link to="/login" className="font-bold text-slate-900 hover:text-emerald-600 underline underline-offset-4">Log in</Link>
- </p>
- </div>
- </form>
- </motion.div>
- </div>
- );
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              {inputWrap(
+                <input type={showPassword ? 'text' : 'password'} className="input" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder=".........." style={{ paddingRight: 40, width: '100%' }} />,
+                showPassword,
+                () => setShowPassword(!showPassword)
+              )}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Confirm Password</label>
+              {inputWrap(
+                <input type={showConfirmPassword ? 'text' : 'password'} className="input" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder=".........." style={{ paddingRight: 40, width: '100%' }} />,
+                showConfirmPassword,
+                () => setShowConfirmPassword(!showConfirmPassword)
+              )}
+            </div>
+
+            <button type="submit" className="btn btn-primary btn-full mt-8" disabled={loading}>
+              {loading ? 'Loading...' : 'Create Account'}
+            </button>
+
+            <p className="text-sm text-center mt-8">
+              Already have an account? <Link to="/login">Log in</Link>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Signup;

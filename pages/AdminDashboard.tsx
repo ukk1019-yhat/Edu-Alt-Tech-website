@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { auth, db, storage, onAuthStateChanged, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc, serverTimestamp, query, where, orderBy, ref, uploadBytes, getDownloadURL, createEnrollment } from '../lib/firebase';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Users, CalendarClock, X, LayoutDashboard, Database, ClipboardList, ArrowLeft, MessageSquare, BarChart3, Send, MoreVertical, Calendar, Video, Pencil, Trash2, Plus, Image, Save, Eye, EyeOff } from 'lucide-react';
 import { TeacherApplication } from '../types';
 import { PLATFORM_COURSES } from '../data/platformCourses';
 import { toast } from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const ADMIN_EMAILS = ['ukkukk97@gmail.com', 'umakrishnakanthchokkapu15@gmail.com', 'akulasatyanarayana2006@gmail.com'];
 
@@ -453,900 +451,884 @@ const AdminDashboard: React.FC = () => {
    return counts;
   }, [enrollments]);
 
- if (loading) {
- return (
- <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4">
- <motion.div
- animate={{ rotate: 360 }}
- transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
- style={{ willChange: 'transform' }}
- >
- <Loader2 className="w-12 h-12 text-emerald-500" />
- </motion.div>
- <p className="text-slate-500 font-bold animate-pulse uppercase tracking-widest text-xs">Syncing Core Systems...</p>
- </div>
- );
- }
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-16" style={{ background: 'var(--bg)' }}>
+        <p>Loading...</p>
+        <p className="font-mono text-xs flabel" style={{ animation: 'pulse 1.5s infinite' }}>Syncing Core Systems...</p>
+      </div>
+    );
+  }
 
- return (
- <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-emerald-500/30">
- {/* Mobile Sidebar Toggle */}
- <button 
- onClick={() => setIsSidebarOpen(true)}
- className="md:hidden fixed top-4 left-4 z-[60] p-2.5 bg-white border border-slate-200 rounded-xl shadow-lg hover:bg-slate-50 :bg-slate-800 transition-colors"
- >
- <MoreVertical className="w-5 h-5" />
- </button>
+  return (
+    <div className="min-h-screen" style={{ background: 'var(--bg)', color: 'var(--ink)' }}>
+      {/* Mobile Sidebar Toggle */}
+      <button 
+        onClick={() => setIsSidebarOpen(true)}
+        className="admin-nav-toggle"
+      >
 
- {/* Desktop Sidebar (always visible on md+) */}
- <nav className="hidden md:flex fixed left-0 top-0 h-full w-72 bg-white [#0f172a] border-r border-slate-200/50 /50 z-40 flex-col p-8">
- <div className="mb-12 flex items-center gap-3">
- <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-xl shadow-emerald-500/20">
- <LayoutDashboard className="w-7 h-7 text-white" />
- </div>
- <div className="flex flex-col">
- <span className="font-black text-xl tracking-tighter leading-none">CORE <span className="text-emerald-500">OPS</span></span>
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Admin Terminal</span>
- </div>
- </div>
+      </button>
 
- <div className="flex-1 space-y-3">
- {[
- { id: 'applications', label: 'Applications', icon: Users, desc: 'Provider review' },
- { id: 'courses', label: 'Course Management', icon: Database, desc: 'CRUD operations' },
- { id: 'chat', label: 'Messages', icon: MessageSquare, desc: 'All conversations' },
- { id: 'stats', label: 'Course Stats', icon: BarChart3, desc: 'Enrollment analytics' },
- { id: 'classes', label: 'Scheduled Classes', icon: Calendar, desc: 'Teacher-scheduled classes' },
- ].map((item) => (
- <button
- key={item.id}
- onClick={() => { setActiveTab(item.id as any); }}
- className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl font-bold transition-colors relative group overflow-hidden ${
- activeTab === item.id 
- ? 'bg-slate-900 text-white shadow-2xl shadow-emerald-500/20' 
- : 'text-slate-500 hover:bg-slate-50 :bg-slate-800/50'
- }`}
- >
- {activeTab === item.id && (
- <motion.div layoutId="nav-bg" className="absolute inset-0 bg-emerald-500 -z-10" />
- )}
- <item.icon className={`w-6 h-6 ${activeTab === item.id ? 'text-white' : 'group-hover:scale-110 transition-transform'}`} />
- <div className="flex flex-col items-start">
- <span className="text-sm">{item.label}</span>
- <span className={`text-[9px] font-medium uppercase tracking-widest ${activeTab === item.id ? 'text-white/60' : 'text-slate-400'}`}>{item.desc}</span>
- </div>
- </button>
- ))}
- </div>
+      {/* Desktop Sidebar (always visible on md+) */}
+      <nav className="admin-sidebar">
+        <div className="mb-24 flex items-center gap-8">
+          <div className="w-10 h-10 flex items-center justify-center text-white" style={{ background: 'var(--accent)', border: '2px solid var(--ink)', boxShadow: '2px 2px 0 0 var(--ink)', borderRadius: '2px' }}>
+            <span style={{ fontWeight: 700, fontSize: '1.2rem' }}>OPS</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="font-bold text-lg leading-none">CORE <span className="text-accent">OPS</span></span>
+            <span className="flabel" style={{ fontSize: '0.55rem', marginTop: '2px' }}>Admin Terminal</span>
+          </div>
+        </div>
 
- <div className="mt-auto pt-8 border-t border-slate-100 /50">
- <button 
- onClick={() => navigate('/')}
- className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl font-bold text-rose-500 hover:bg-rose-50 :bg-rose-500/10 transition-colors border border-transparent hover:border-rose-200 :border-rose-500/20"
- >
- <ArrowLeft className="w-5 h-5" />
- <span>Exit Console</span>
- </button>
- </div>
- </nav>
+        <div className="flex-1 flex flex-col gap-12">
+          {[
+            { id: 'applications', label: 'Applications', desc: 'Provider review' },
+            { id: 'courses', label: 'Course Management', desc: 'CRUD operations' },
+            { id: 'chat', label: 'Messages', desc: 'All conversations' },
+            { id: 'stats', label: 'Course Stats', desc: 'Enrollment analytics' },
+            { id: 'classes', label: 'Scheduled Classes', desc: 'Teacher classes' },
+          ].map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => { setActiveTab(item.id as any); }}
+                className="w-full text-left p-12 flex items-center gap-12"
+                style={{
+                  background: isActive ? 'var(--accent)' : 'transparent',
+                  color: isActive ? '#fff' : 'var(--ink-soft)',
+                  border: isActive ? '2px solid var(--ink)' : '2px solid transparent',
+                  boxShadow: isActive ? '3px 3px 0 0 var(--ink)' : 'none',
+                  cursor: 'pointer',
+                  borderRadius: isActive ? '4px' : '0px',
+                  fontWeight: 700,
+                  transition: 'all 0.1s'
+                }}
+              >
+                
+                <div className="flex flex-col items-start">
+                  <span className="text-sm">{item.label}</span>
+                  <span className="flabel" style={{ fontSize: '0.55rem', color: isActive ? 'rgba(255,255,255,0.7)' : 'var(--ink-mute)' }}>{item.desc}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
 
- {/* Mobile Sidebar (overlay, controlled by state) */}
- <AnimatePresence>
- {isSidebarOpen && (
- <>
- <motion.div
- initial={{ opacity: 0 }}
- animate={{ opacity: 1 }}
- exit={{ opacity: 0 }}
- onClick={() => setIsSidebarOpen(false)}
- className="md:hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[55]"
- />
- <motion.nav 
- initial={{ x: -100, opacity: 0 }}
- animate={{ x: 0, opacity: 1 }}
- exit={{ x: -100, opacity: 0 }}
- className="md:hidden fixed left-0 top-0 h-full w-72 max-w-[85vw] bg-white [#0f172a] border-r border-slate-200/50 /50 z-[60] flex flex-col p-6 shadow-2xl"
- >
- <div className="mb-12 flex items-center justify-between">
- <div className="flex items-center gap-3">
- <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-xl shadow-emerald-500/20">
- <LayoutDashboard className="w-7 h-7 text-white" />
- </div>
- <div className="flex flex-col">
- <span className="font-black text-xl tracking-tighter leading-none">CORE <span className="text-emerald-500">OPS</span></span>
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Admin Terminal</span>
- </div>
- </div>
- <button onClick={() => setIsSidebarOpen(false)} className="p-3 hover:bg-slate-100 :bg-slate-800 rounded-lg transition-colors">
- <X className="w-5 h-5" />
- </button>
- </div>
+        <div className="mt-auto pt-16 border-top">
+          <button 
+            onClick={() => navigate('/')}
+            className="btn btn-full"
+            style={{ color: 'var(--danger)', borderColor: 'var(--danger)' }}
+          >
+            <span>← Exit Console</span>
+          </button>
+        </div>
+      </nav>
 
- <div className="flex-1 space-y-3">
- {[
- { id: 'applications', label: 'Applications', icon: Users, desc: 'Provider review' },
- { id: 'courses', label: 'Course Management', icon: Database, desc: 'CRUD operations' },
-{ id: 'chat', label: 'Messages', icon: MessageSquare, desc: 'All conversations' },
- { id: 'stats', label: 'Course Stats', icon: BarChart3, desc: 'Enrollment analytics' },
- { id: 'classes', label: 'Scheduled Classes', icon: Calendar, desc: 'Teacher-scheduled classes' },
- ].map((item) => (
- <button
- key={item.id}
- onClick={() => { setActiveTab(item.id as any); setIsSidebarOpen(false); }}
- className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl font-bold transition-colors relative group overflow-hidden ${
- activeTab === item.id 
- ? 'bg-slate-900 text-white shadow-2xl shadow-emerald-500/20' 
- : 'text-slate-500 hover:bg-slate-50 :bg-slate-800/50'
- }`}
- >
- <item.icon className={`w-6 h-6 ${activeTab === item.id ? 'text-white' : 'group-hover:scale-110 transition-transform'}`} />
- <div className="flex flex-col items-start">
- <span className="text-sm">{item.label}</span>
- <span className={`text-[9px] font-medium uppercase tracking-widest ${activeTab === item.id ? 'text-white/60' : 'text-slate-400'}`}>{item.desc}</span>
- </div>
- </button>
- ))}
- </div>
+      {/* Mobile Sidebar (overlay, controlled by state) */}
+      {isSidebarOpen && (
+        <>
+          <div
+            onClick={() => setIsSidebarOpen(false)}
+            className="drawer-overlay visible"
+          />
+          <nav
+            className="admin-sidebar"
+            style={{ display: 'flex', zIndex: 60 }}
+          >
+              <div className="mb-24 flex items-center justify-between">
+                <div className="flex items-center gap-8">
+                  <div className="w-10 h-10 flex items-center justify-center text-white" style={{ background: 'var(--accent)', border: '2px solid var(--ink)', boxShadow: '2px 2px 0 0 var(--ink)', borderRadius: '2px' }}>
 
- <div className="mt-auto pt-8 border-t border-slate-100 /50">
- <button 
- onClick={() => navigate('/')}
- className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl font-bold text-rose-500 hover:bg-rose-50 :bg-rose-500/10 transition-colors border border-transparent hover:border-rose-200 :border-rose-500/20"
- >
- <ArrowLeft className="w-5 h-5" />
- <span>Exit Console</span>
- </button>
- </div>
- </motion.nav>
- </>
- )}
- </AnimatePresence>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-bold text-lg leading-none">CORE <span className="text-accent">OPS</span></span>
+                    <span className="flabel" style={{ fontSize: '0.55rem', marginTop: '2px' }}>Admin Terminal</span>
+                  </div>
+                </div>
+                <button onClick={() => setIsSidebarOpen(false)} className="btn btn-xs">
 
- {/* Main Content Area */}
- <main className="md:pl-72 pt-20 md:pt-12 pb-12 sm:pb-24 px-4 sm:px-6 md:px-16">
- <div className="max-w-[1400px] mx-auto">
- {/* Header */}
- <header className="mb-16">
- <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em]">Admin Console</span>
- <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 ">
- {activeTab === 'applications' ? 'Provider Applications' : activeTab === 'chat' ? 'Messages' : activeTab === 'stats' ? 'Course Statistics' : activeTab === 'courses' ? 'Course Management' : 'Scheduled Classes'}
- </h1>
- <p className="text-slate-500 font-medium mt-2">
- {activeTab === 'applications' ? 'Review and manage teacher/provider applications' : activeTab === 'chat' ? 'Direct messaging with providers' : activeTab === 'stats' ? 'Enrollment analytics per course' : activeTab === 'courses' ? 'Create, edit, and delete courses' : 'Live classes scheduled by teachers'}
- </p>
- </header>
+                </button>
+              </div>
 
- <AnimatePresence mode="wait">
- <motion.div
- key={activeTab}
- initial={{ opacity: 0, y: 20 }}
- animate={{ opacity: 1, y: 0 }}
- exit={{ opacity: 0, y: -20 }}
- transition={{ duration: 0.3, ease: "circOut" }}
- >
- {activeTab === 'applications' && (
- <div className="space-y-8">
- <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
- {teacherApps.length === 0 ? (
- <div className="col-span-full py-32 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-200 ">
- <CalendarClock className="w-16 h-16 text-slate-200 mx-auto mb-6" />
- <h3 className="text-xl font-black text-slate-400">NO PENDING DOSSIERS</h3>
- <p className="text-slate-500 text-sm font-medium mt-2">The system is currently clear of applicants.</p>
- </div>
- ) : (
- teacherApps.map(app => (
- <motion.div 
- layout
- key={app.id} 
- className="group bg-white p-6 sm:p-8 rounded-[2.5rem] border border-slate-200/50 hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] transition-shadow duration-500 relative"
- >
- <div className="absolute top-0 right-0 p-6 flex items-center gap-2">
- <div className={`w-2 h-2 rounded-full animate-pulse ${
- app.status === 'pending' ? 'bg-amber-500' :
- app.status === 'approved' ? 'bg-emerald-500' : 'bg-blue-500'
- }`} />
- <span className={`text-[10px] font-black uppercase tracking-widest ${
- app.status === 'pending' ? 'text-amber-500' :
- app.status === 'approved' ? 'text-emerald-500' : 'text-blue-500'
- }`}>
- {app.status}
- </span>
- </div>
+              <div className="flex-1 flex flex-col gap-12">
+                {[
+                  { id: 'applications', label: 'Applications', desc: 'Provider review' },
+                  { id: 'courses', label: 'Course Management', desc: 'CRUD operations' },
+                  { id: 'chat', label: 'Messages', desc: 'All conversations' },
+                  { id: 'stats', label: 'Course Stats', desc: 'Enrollment analytics' },
+                  { id: 'classes', label: 'Scheduled Classes', desc: 'Teacher classes' },
+                ].map((item) => {
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => { setActiveTab(item.id as any); setIsSidebarOpen(false); }}
+                      className="w-full text-left p-12 flex items-center gap-12"
+                      style={{
+                        background: isActive ? 'var(--accent)' : 'transparent',
+                        color: isActive ? '#fff' : 'var(--ink-soft)',
+                        border: isActive ? '2px solid var(--ink)' : '2px solid transparent',
+                        boxShadow: isActive ? '3px 3px 0 0 var(--ink)' : 'none',
+                        cursor: 'pointer',
+                        borderRadius: isActive ? '4px' : '0px',
+                        fontWeight: 700,
+                        transition: 'all 0.1s'
+                      }}
+                    >
+                      
+                      <div className="flex flex-col items-start">
+                        <span className="text-sm">{item.label}</span>
+                        <span className="flabel" style={{ fontSize: '0.55rem', color: isActive ? 'rgba(255,255,255,0.7)' : 'var(--ink-mute)' }}>{item.desc}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
 
- <div className="mb-8">
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block">Applicant</span>
- <h4 className="font-black text-2xl text-slate-900 mb-1 line-clamp-1">{app.userName}</h4>
- <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider">{app.userEmail}</p>
- </div>
+              <div className="mt-auto pt-16 border-top">
+                <button 
+                  onClick={() => navigate('/')}
+                  className="btn btn-full"
+                  style={{ color: 'var(--danger)', borderColor: 'var(--danger)' }}
+                >
 
- <div className="p-5 bg-slate-50 /50 rounded-2xl border border-slate-100 mb-8">
- <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Target Curriculum</span>
- <p className="font-bold text-slate-700 flex items-center gap-2">
- <ClipboardList className="w-4 h-4 text-emerald-500" /> {app.courseTitle}
- </p>
- </div>
+                  <span>Exit Console</span>
+                </button>
+              </div>
+            </nav>
+          </>
+        )}
 
- <div className="flex items-center gap-4 mb-8">
- <div className="flex-1 p-3 bg-white rounded-xl border border-slate-100 text-center">
- <span className="block text-[9px] font-black text-slate-400 uppercase mb-1">Experience</span>
- <span className="text-xl font-black text-slate-900 ">{app.experience}y</span>
- </div>
- <div className="flex-1 p-3 bg-white rounded-xl border border-slate-100 text-center">
- <span className="block text-[9px] font-black text-slate-400 uppercase mb-1">Skills</span>
- <span className="text-xl font-black text-emerald-500">{app.skills?.split(',').length || 0}</span>
- </div>
- </div>
+      {/* Main Content Area */}
+      <main className="admin-main">
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+          {/* Header */}
+          <header className="mb-40">
+            <span className="flabel">Admin Console</span>
+            <h1 className="mb-8">
+              {activeTab === 'applications' ? 'Provider Applications' : activeTab === 'chat' ? 'Messages' : activeTab === 'stats' ? 'Course Statistics' : activeTab === 'courses' ? 'Course Management' : 'Scheduled Classes'}
+            </h1>
+            <p className="text-ink-soft">
+              {activeTab === 'applications' ? 'Review and manage teacher/provider applications' : activeTab === 'chat' ? 'Direct messaging with providers' : activeTab === 'stats' ? 'Enrollment analytics per course' : activeTab === 'courses' ? 'Create, edit, and delete courses' : 'Live classes scheduled by teachers'}
+            </p>
+          </header>
 
- {app.status === 'scheduled' && (() => {
- const linkMatch = app.message?.match(/\[Interview Link:\s*([^\]\n]+)\]/);
- const meetingUrl = linkMatch ? linkMatch[1] : app.meetingLink;
- const formattedUrl = meetingUrl ? (meetingUrl.startsWith('http') ? meetingUrl : `https://${meetingUrl}`) : null;
- return formattedUrl ? (
- <a href={formattedUrl} target="_blank" rel="noreferrer" className="block mb-4 p-3 bg-blue-50 /20 rounded-xl border border-blue-200 text-blue-600 font-bold text-sm truncate hover:underline">
- <Video className="w-3.5 h-3.5 inline mr-2" />{meetingUrl}
- </a>
- ) : null;
- })()}
+          <div>
+              {activeTab === 'applications' && (
+                <div>
+                  <div className="grid-3">
+                    {teacherApps.length === 0 ? (
+                      <div className="empty-state bento-card" style={{ gridColumn: 'span 3' }}>
 
- <button 
- onClick={() => setSelectedApp(app)}
- className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl group-hover:bg-emerald-500 group-hover:text-white"
- >
- REVIEW DOSSIER
- </button>
- </motion.div>
- ))
- )}
- </div>
- </div>
- )}
+                        <h3>NO PENDING DOSSIERS</h3>
+                        <p>The system is currently clear of applicants.</p>
+                      </div>
+                    ) : (
+                      teacherApps.map(app => (
+                        <div 
+                          key={app.id} 
+                          className="bento-card"
+                          style={{ position: 'relative' }}
+                        >
+                          <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div className="badge badge-accent">
+                              {app.status}
+                            </div>
+                          </div>
 
- {activeTab === 'chat' && (
- <div className="flex flex-col lg:flex-row gap-8 min-h-[60vh] lg:h-[calc(100vh-320px)] sm:min-h-[500px]">
- {/* Contacts sidebar */}
- <div className="lg:w-80 bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden flex flex-col shrink-0">
- <div className="p-6 border-b border-slate-100 ">
- <h3 className="font-black text-lg">Contacts</h3>
- <p className="text-xs text-slate-400 font-medium mt-1">{chatContacts.length} contacts</p>
- </div>
- <div className="flex-1 overflow-y-auto custom-scrollbar">
- {chatContacts.length === 0 ? (
- <div className="p-8 text-center">
- <MessageSquare className="w-10 h-10 text-slate-300 mx-auto mb-3" />
- <p className="text-sm font-medium text-slate-400">No contacts yet</p>
- <p className="text-xs text-slate-500 mt-1">Messages from users will appear here</p>
- </div>
- ) : (
- chatContacts.map(contact => (
- <button
- key={contact.id}
- onClick={() => selectChatContact(contact)}
- className={`w-full p-5 flex items-center gap-4 hover:bg-slate-50 :bg-slate-800/50 transition-colors border-b border-slate-100 /50 text-left ${
- selectedContact?.id === contact.id ? 'bg-emerald-500/5 /10' : ''
- }`}
- >
- <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center font-black text-white text-lg shrink-0">
- {contact.name.charAt(0).toUpperCase()}
- </div>
- <div className="min-w-0">
- <p className="font-bold text-sm truncate">{contact.name}</p>
- <p className="text-[10px] text-slate-400 font-medium truncate">{contact.email}</p>
- </div>
- </button>
- ))
- )}
- </div>
- </div>
+                          <div className="mb-24">
+                            <span className="flabel mb-4 block">Applicant</span>
+                            <h4 className="font-bold text-lg mb-4">{app.userName}</h4>
+                            <p className="text-xs text-accent font-bold uppercase">{app.userEmail}</p>
+                          </div>
 
- {/* Chat area */}
- <div className="flex-1 bg-white rounded-[2.5rem] border border-slate-200 flex flex-col overflow-hidden">
- {!selectedContact ? (
- <div className="flex-1 flex items-center justify-center">
- <div className="text-center">
- <MessageSquare className="w-16 h-16 text-slate-200 mx-auto mb-4" />
- <h3 className="text-xl font-black text-slate-400">Select a Contact</h3>
- <p className="text-sm text-slate-500 mt-1">Choose a provider from the sidebar to start chatting</p>
- </div>
- </div>
- ) : (
- <>
- {/* Chat header */}
- <div className="p-6 border-b border-slate-100 flex items-center gap-4">
- <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center font-black text-white">
- {selectedContact.name.charAt(0).toUpperCase()}
- </div>
- <div>
- <p className="font-bold">{selectedContact.name}</p>
- <p className="text-[10px] text-slate-400 font-medium">{selectedContact.email}</p>
- </div>
- </div>
+                          <div className="p-16 mb-24" style={{ background: 'var(--bg-surface)', border: '2px solid var(--ink)', borderRadius: '4px' }}>
+                            <span className="flabel mb-4 block">Target Curriculum</span>
+                            <p className="font-bold flex items-center gap-8">
+                              {app.courseTitle}
+                            </p>
+                          </div>
 
- {/* Messages */}
- <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4">
- {chatMessages.length === 0 ? (
- <div className="text-center py-12">
- <p className="text-slate-400 font-medium">No messages yet</p>
- <p className="text-xs text-slate-500 mt-1">Send a message to start the conversation</p>
- </div>
- ) : (
- chatMessages.map((msg) => (
- <div key={msg.id} className={`flex ${msg.role === 'admin' ? 'justify-end' : 'justify-start'}`}>
- <div className={`max-w-[80%] p-4 rounded-2xl ${
- msg.role === 'admin' 
- ? 'bg-emerald-500 text-white rounded-br-md' 
- : 'bg-slate-100 text-slate-900 rounded-bl-md'
- }`}>
- <p className="text-sm font-medium leading-relaxed">{msg.content}</p>
- <p className={`text-[10px] mt-1 ${msg.role === 'admin' ? 'text-emerald-200' : 'text-slate-400'}`}>
- {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
- </p>
- </div>
- </div>
- ))
- )}
- </div>
+                          <div className="flex gap-12 mb-24">
+                            <div className="flex-1 p-12 text-center" style={{ background: 'var(--bg-surface)', border: '2px solid var(--ink)', borderRadius: '4px' }}>
+                              <span className="block flabel mb-4">Experience</span>
+                              <span className="font-bold text-base">{app.experience}y</span>
+                            </div>
+                            <div className="flex-1 p-12 text-center" style={{ background: 'var(--bg-surface)', border: '2px solid var(--ink)', borderRadius: '4px' }}>
+                              <span className="block flabel mb-4">Skills</span>
+                              <span className="font-bold text-base text-accent">{app.skills?.split(',').length || 0}</span>
+                            </div>
+                          </div>
 
- {/* Input */}
- <div className="p-6 border-t border-slate-100 ">
- <div className="flex gap-4">
- <input
- value={chatInput}
- onChange={(e) => setChatInput(e.target.value)}
- onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
- placeholder="Type a message..."
- className="flex-1 p-4 bg-slate-50 rounded-2xl outline-none font-bold border border-transparent focus:border-emerald-500 transition-colors"
- />
- <button
- onClick={handleSendMessage}
- disabled={sendingMessage || !chatInput.trim()}
- className="px-6 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl transition-colors disabled:opacity-50 flex items-center gap-2"
- >
- {sendingMessage ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
- </button>
- </div>
- </div>
- </>
- )}
- </div>
- </div>
- )}
+                          {app.status === 'scheduled' && (() => {
+                            const linkMatch = app.message?.match(/\[Interview Link:\s*([^\]\n]+)\]/);
+                            const meetingUrl = linkMatch ? linkMatch[1] : app.meetingLink;
+                            const formattedUrl = meetingUrl ? (meetingUrl.startsWith('http') ? meetingUrl : `https://${meetingUrl}`) : null;
+                            return formattedUrl ? (
+                              <a href={formattedUrl} target="_blank" rel="noreferrer" className="btn btn-sm btn-full mb-12 text-accent truncate">
+                                {meetingUrl}
+                              </a>
+                            ) : null;
+                          })()}
 
- {activeTab === 'stats' && (
- <div className="space-y-8">
- {/* Summary cards */}
- <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
- <div className="bg-white p-6 rounded-2xl border border-slate-200 ">
- <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Courses</span>
- <p className="text-3xl sm:text-4xl font-black mt-2 text-slate-900 ">{coursesList.length}</p>
- </div>
- <div className="bg-white p-6 rounded-2xl border border-slate-200 ">
- <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Enrollments</span>
- <p className="text-3xl sm:text-4xl font-black mt-2 text-emerald-500">{enrollments.length}</p>
- </div>
-   <div className="bg-white p-6 rounded-2xl border border-slate-200 ">
-   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Enrollments</span>
-   <p className="text-3xl sm:text-4xl font-black mt-2 text-blue-500">{activeCount}</p>
-   </div>
-   </div>
+                          <button 
+                            onClick={() => setSelectedApp(app)}
+                            className="btn btn-primary btn-full mt-auto"
+                          >
+                            REVIEW DOSSIER
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
 
-  {/* Plan Breakdown */}
-  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-    <div className="bg-blue-50 p-6 rounded-2xl border border-blue-200">
-      <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Trial</span>
-      <p className="text-3xl sm:text-4xl font-black mt-2 text-blue-700">{planBreakdown.trial}</p>
+              {activeTab === 'chat' && (
+                <div className="flex flex-col md:flex-row gap-24" style={{ height: 'calc(100vh - 280px)', minHeight: '550px' }}>
+                  {/* Contacts sidebar */}
+                  <div className="bento-card flex-col" style={{ width: '280px', flexShrink: 0, padding: 0 }}>
+                    <div className="p-16 border-bottom">
+                      <h3 className="font-bold text-lg">Contacts</h3>
+                      <p className="text-xs text-ink-soft">{chatContacts.length} contacts</p>
+                    </div>
+                    <div className="flex-1 overflow-auto">
+                      {chatContacts.length === 0 ? (
+                        <div className="p-24 text-center">
+
+                          <p className="text-sm font-bold text-ink-soft">No contacts yet</p>
+                        </div>
+                      ) : (
+                        chatContacts.map(contact => (
+                          <button
+                            key={contact.id}
+                            onClick={() => selectChatContact(contact)}
+                            className="w-full p-12 flex items-center gap-12 text-left border-bottom"
+                            style={{
+                              background: selectedContact?.id === contact.id ? 'var(--accent-soft)' : 'transparent',
+                              border: 'none',
+                              borderBottom: '2px solid var(--rule-soft)',
+                              cursor: 'pointer',
+                              color: 'var(--ink)'
+                            }}
+                          >
+                            <div className="w-10 h-10 flex items-center justify-center font-bold text-white text-sm" style={{ background: 'var(--accent)', borderRadius: '2px' }}>
+                              {contact.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="truncate">
+                              <p className="font-bold text-sm truncate">{contact.name}</p>
+                              <p className="text-xs text-ink-mute truncate">{contact.email}</p>
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Chat area */}
+                  <div className="bento-card flex-1" style={{ padding: 0 }}>
+                    {!selectedContact ? (
+                      <div className="flex-1 flex items-center justify-center text-center p-24">
+                        <div>
+
+                          <h3 className="text-xl font-bold text-ink-soft">Select a Contact</h3>
+                          <p className="text-sm text-ink-mute">Choose a provider to start chatting</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col h-full w-full">
+                        {/* Chat header */}
+                        <div className="p-16 border-bottom flex items-center gap-12">
+                          <div className="w-8 h-8 flex items-center justify-center font-bold text-white text-xs" style={{ background: 'var(--accent)', borderRadius: '2px' }}>
+                            {selectedContact.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-bold text-sm">{selectedContact.name}</p>
+                            <p className="text-xs text-ink-mute">{selectedContact.email}</p>
+                          </div>
+                        </div>
+
+                        {/* Messages */}
+                        <div className="flex-1 overflow-auto p-16 flex flex-col gap-12">
+                          {chatMessages.length === 0 ? (
+                            <div className="text-center py-24">
+                              <p className="text-ink-soft font-bold">No messages yet</p>
+                            </div>
+                          ) : (
+                            chatMessages.map((msg) => (
+                              <div key={msg.id} className="flex" style={{ justifyContent: msg.role === 'admin' ? 'flex-end' : 'flex-start' }}>
+                                <div 
+                                  className="p-12"
+                                  style={{
+                                    maxWidth: '75%',
+                                    background: msg.role === 'admin' ? 'var(--accent)' : 'var(--bg-surface-hover)',
+                                    color: msg.role === 'admin' ? '#fff' : 'var(--ink)',
+                                    border: '2px solid var(--ink)',
+                                    borderRadius: '4px',
+                                    boxShadow: '2px 2px 0 0 var(--ink)'
+                                  }}
+                                >
+                                  <p className="text-sm leading-relaxed">{msg.content}</p>
+                                  <p className="text-[10px] mt-4 text-right" style={{ color: msg.role === 'admin' ? '#fff' : 'var(--ink-mute)', opacity: 0.8 }}>
+                                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </p>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+
+                        {/* Input */}
+                        <div className="p-16 border-top">
+                          <div className="flex gap-12">
+                            <input
+                              value={chatInput}
+                              onChange={(e) => setChatInput(e.target.value)}
+                              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
+                              placeholder="Type a message..."
+                              className="input flex-1"
+                            />
+                            <button
+                              onClick={handleSendMessage}
+                              disabled={sendingMessage || !chatInput.trim()}
+                              className="btn btn-primary"
+                            >
+                              {sendingMessage ? '...' : ''}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'stats' && (
+                <div className="flex flex-col gap-24">
+                  {/* Summary cards */}
+                  <div className="grid-3">
+                    <div className="bento-card">
+                      <span className="flabel">Total Courses</span>
+                      <p className="stat-value">{coursesList.length}</p>
+                    </div>
+                    <div className="bento-card">
+                      <span className="flabel">Total Enrollments</span>
+                      <p className="stat-value accented">{enrollments.length}</p>
+                    </div>
+                    <div className="bento-card">
+                      <span className="flabel">Active Enrollments</span>
+                      <p className="stat-value" style={{ color: 'var(--accent)' }}>{activeCount}</p>
+                    </div>
+                  </div>
+
+                  {/* Plan Breakdown */}
+                  <div className="grid-3">
+                    <div className="bento-card" style={{ background: 'var(--accent-soft)', borderColor: 'var(--accent)' }}>
+                      <span className="flabel" style={{ color: 'var(--accent)' }}>Trial</span>
+                      <p className="stat-value" style={{ color: 'var(--accent)' }}>{planBreakdown.trial}</p>
+                    </div>
+                    <div className="bento-card" style={{ background: 'var(--warning-bg)', borderColor: 'var(--warning)' }}>
+                      <span className="flabel" style={{ color: 'var(--warning)' }}>First Class</span>
+                      <p className="stat-value" style={{ color: 'var(--warning)' }}>{planBreakdown.first_class}</p>
+                    </div>
+                    <div className="bento-card" style={{ background: 'var(--danger-bg)', borderColor: 'var(--danger)' }}>
+                      <span className="flabel" style={{ color: 'var(--danger)' }}>Full Access</span>
+                      <p className="stat-value" style={{ color: 'var(--danger)' }}>{planBreakdown.full}</p>
+                    </div>
+                  </div>
+
+                  {/* Course enrollment table */}
+                  <div className="bento-card" style={{ padding: 0 }}>
+                    <div className="p-16 border-bottom flex justify-between items-center flex-wrap gap-12">
+                      <h3 className="font-bold text-lg">Enrollments by Course</h3>
+                      <div className="flex gap-8">
+                        {(['all', 'free', 'paid'] as const).map(f => (
+                          <button key={f} onClick={() => setPriceFilter(f)}
+                            className="btn btn-xs"
+                            style={priceFilter === f ? { background: 'var(--accent)', color: '#fff', borderColor: 'var(--accent)' } : undefined}
+                          >
+                            {f === 'free' ? '₹0 (Free)' : f === 'paid' ? 'Paid' : 'All'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="table-wrap">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Course</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th style={{ textAlign: 'right' }}>Enrollments</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {coursesList
+                            .filter(c => priceFilter === 'all' || (priceFilter === 'free' ? (!c.price || c.price === 0) : (c.price && c.price > 0)))
+                            .map((course: any) => {
+                              const count = enrollmentCounts[course.id] || 0;
+                              return (
+                                <tr key={course.id}>
+                                  <td>
+                                    <div className="flex items-center gap-12">
+                                      <div className="w-8 h-8 flex items-center justify-center text-white font-bold text-xs" style={{ background: 'var(--accent)', borderRadius: '2px' }}>
+                                        {course.title?.charAt(0) || 'C'}
+                                      </div>
+                                      <div>
+                                        <div className="flex items-center gap-8">
+                                          <p className="font-bold text-sm text-ink">{course.title || 'Untitled'}</p>
+                                          {course.comingSoon && <span className="badge badge-warning text-[10px]">Soon</span>}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <span className="text-xs font-semibold text-ink">
+                                      {!course.price || course.price === 0 ? 'Free' : `₹${course.price}/month`}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <span className="text-xs text-ink-soft">{course.category || 'Uncategorized'}</span>
+                                  </td>
+                                  <td style={{ textAlign: 'right' }}>
+                                    <span className={`badge ${count > 0 ? 'badge-accent' : ''}`} style={{ fontFamily: 'var(--font-mono)' }}>
+                                      {count}
+                                    </span>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'classes' && (
+                <div>
+                  {loadingClasses ? (
+                    <div className="flex justify-center py-24"><p>Loading...</p></div>
+                  ) : scheduledClasses.length === 0 ? (
+                    <div className="empty-state bento-card">
+
+                      <h3>No Scheduled Classes</h3>
+                      <p>Teachers have not scheduled any live classes yet.</p>
+                    </div>
+                  ) : (
+                    <div className="grid-3">
+                      {scheduledClasses.map((sc) => (
+                        <div key={sc.id} className="bento-card">
+                          <div className="flex items-center gap-12 mb-12">
+                            <div className="w-10 h-10 flex items-center justify-center font-bold text-white shrink-0" style={{ background: 'var(--accent)', borderRadius: '2px' }}>
+
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-bold text-ink truncate">{sc.title}</p>
+                              <p className="text-xs text-ink-mute font-mono mt-4">
+                                {sc.scheduled_at ? new Date(sc.scheduled_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'No date'}
+                              </p>
+                            </div>
+                          </div>
+                          <p className="text-xs text-ink-soft mb-16" style={{ minHeight: '40px' }}>{sc.description || 'No description'}</p>
+                          <div className="flex items-center gap-8 mb-16">
+                            <span className="flabel">Teacher:</span>
+                            <span className="text-xs font-bold text-ink">{sc.users?.display_name || sc.teacher_id?.slice(0, 8) || 'Unknown'}</span>
+                          </div>
+                          <a href={sc.meeting_link} target="_blank" rel="noreferrer" className="btn btn-primary btn-full mt-auto">
+                            Join Class
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'courses' && (
+                <div className="flex flex-col gap-24">
+                  {/* Summary cards */}
+                  <div className="grid-3">
+                    <div className="bento-card">
+                      <span className="flabel">Total Courses</span>
+                      <p className="stat-value">{coursesList.length}</p>
+                    </div>
+                    <div className="bento-card">
+                      <span className="flabel">Total Enrollments</span>
+                      <p className="stat-value accented">{enrollments.length}</p>
+                    </div>
+                    <div className="bento-card">
+                      <span className="flabel">Active Enrollments</span>
+                      <p className="stat-value" style={{ color: 'var(--accent)' }}>{activeCount}</p>
+                    </div>
+                  </div>
+
+                  {/* Search & Add bar */}
+                  <div className="flex justify-between items-center flex-wrap gap-12">
+                    <div className="flex items-center flex-wrap gap-12 w-full md:w-auto">
+                      <input 
+                        type="text" 
+                        placeholder="Search courses..." 
+                        value={courseSearch} 
+                        onChange={e => setCourseSearch(e.target.value)}
+                        className="input" 
+                        style={{ width: '240px' }}
+                      />
+                      <div className="flex gap-8">
+                        {(['all', 'free', 'paid'] as const).map(f => (
+                          <button key={f} onClick={() => setCoursePriceFilter(f)}
+                            className="btn btn-xs"
+                            style={coursePriceFilter === f ? { background: 'var(--accent)', color: '#fff', borderColor: 'var(--accent)' } : undefined}
+                          >
+                            {f === 'free' ? 'Free' : f === 'paid' ? 'Paid' : 'All'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <button onClick={openAddCourse} className="btn btn-primary">
+                      Add Course
+                    </button>
+                  </div>
+
+                  {/* Course table */}
+                  <div className="bento-card" style={{ padding: 0 }}>
+                    <div className="table-wrap">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Course</th>
+                            <th>Folder</th>
+                            <th>Price</th>
+                            <th style={{ textAlign: 'right' }}>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredCoursesList.map((course: any) => (
+                            <tr key={course.id}>
+                              <td>
+                                <div className="flex items-center gap-12">
+                                  <div className="w-8 h-8 flex items-center justify-center text-white font-bold text-xs" style={{ background: 'var(--accent)', borderRadius: '2px' }}>
+                                    {course.title?.charAt(0) || 'C'}
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-8">
+                                      <p className="font-bold text-sm text-ink">{course.title || 'Untitled'}</p>
+                                      {course.comingSoon && <span className="badge badge-warning text-[10px]">Soon</span>}
+                                    </div>
+                                    <p className="text-[10px] text-ink-mute font-mono">{course.id?.slice(0, 8)}...</p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                <span className="text-xs text-ink-soft">{course.folder || '—'}</span>
+                              </td>
+                              <td>
+                                <span className={`text-xs font-bold ${!course.price || course.price === 0 ? 'text-accent' : 'text-ink'}`}>
+                                  {!course.price || course.price === 0 ? 'Free' : `₹${course.price}/month`}
+                                </span>
+                              </td>
+                              <td style={{ textAlign: 'right' }}>
+                                <div className="flex items-center justify-end gap-8">
+                                  <button onClick={() => handleToggleComingSoon(course)} className="btn btn-xs" title={course.comingSoon ? 'Release course' : 'Mark as Coming Soon'}>
+                                    {course.comingSoon ? '' : ''}
+                                  </button>
+                                  <button onClick={() => openEditCourse(course)} className="btn btn-xs" title="Edit">
+
+                                  </button>
+                                  <button onClick={() => handleDeleteCourse(course.id, course.title)} className="btn btn-xs" style={{ color: 'var(--danger)', borderColor: 'var(--danger)' }} title="Delete">
+
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                          {filteredCoursesList.length === 0 && (
+                            <tr>
+                              <td colSpan={4} className="px-8 py-16 text-center">
+
+                                <p className="text-ink-soft font-bold">{courseSearch ? 'No courses match your search' : 'No courses yet.'}</p>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+        </div>
+      </main>
+
+      {/* Premium Application Modal */}
+      {selectedApp && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-16">
+          <div
+            onClick={() => setSelectedApp(null)}
+            className="drawer-overlay visible"
+          />
+          <div
+            className="relative w-full max-w-2xl bg-white"
+            style={{ border: '2px solid var(--ink)', boxShadow: '8px 8px 0 0 var(--ink)', borderRadius: '4px', overflow: 'hidden' }}
+          >
+              <div className="p-24">
+                <div className="flex justify-between items-center mb-24">
+                  <div>
+                    <h2 className="text-2xl font-bold tracking-tight mb-4">Mentor Review</h2>
+                    <p className="flabel">Application Dossier #{selectedApp.id.slice(0, 8)}</p>
+                  </div>
+                  <button onClick={() => setSelectedApp(null)} className="btn btn-xs">
+
+                  </button>
+                </div>
+                
+                <div className="flex flex-col gap-24 overflow-auto pr-8" style={{ maxHeight: '60vh' }}>
+                  <div>
+                    <label className="flabel block mb-8">Applicant Profile</label>
+                    <div className="grid-2">
+                      <div>
+                        <p className="text-xs flabel mb-4">Name</p>
+                        <p className="font-bold text-sm">{selectedApp.userName}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs flabel mb-4">Target Curriculum</p>
+                        <p className="font-bold text-sm">{selectedApp.courseTitle}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs flabel mb-4">Highest Qualification</p>
+                        <p className="font-bold text-sm">{selectedApp.highestQualification || (selectedApp as any).highest_qualification || 'Not specified'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs flabel mb-4">Languages to Teach</p>
+                        <p className="font-bold text-sm text-accent">{selectedApp.languages || 'Not specified'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="flabel block mb-8">Professional Experience</label>
+                    <p className="text-sm text-ink-soft p-12" style={{ background: 'var(--bg-surface)', border: '2px solid var(--ink)', borderRadius: '4px' }}>
+                      {selectedApp.experience || 'No experience provided.'}
+                    </p>
+                  </div>
+
+                  {selectedApp.status === 'pending' && (
+                    <div className="border-top pt-16">
+                      <div className="p-16 mb-16" style={{ background: 'var(--bg-surface)', border: '2px solid var(--ink)', borderRadius: '4px' }}>
+                        <label className="flabel block mb-12">Schedule Interview</label>
+                        <div className="flex flex-col gap-12">
+                          <div className="flex flex-col md:flex-row gap-12">
+                            <div className="flex-1">
+                              <label className="text-xs font-bold block mb-4">Interview Date & Time</label>
+                              <input
+                                type="datetime-local"
+                                value={meetDate}
+                                onChange={e => setMeetDate(e.target.value)}
+                                className="input"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <label className="text-xs font-bold block mb-4">Google Meet / Zoom Link</label>
+                              <input
+                                value={meetLink}
+                                onChange={e => setMeetLink(e.target.value)}
+                                placeholder="Paste Link..."
+                                className="input"
+                              />
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleApproveApp(selectedApp.id, selectedApp.userEmail)}
+                            className="btn btn-primary"
+                          >
+                            Schedule Interview & Send Link
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-12">
+                        <button
+                          onClick={() => handleFinalVerdictTeacher(selectedApp.id, selectedApp.userEmail, 'approved')}
+                          className="btn btn-primary flex-1"
+                        >
+                          APPROVE MENTOR NOW
+                        </button>
+                        <button
+                          onClick={() => handleFinalVerdictTeacher(selectedApp.id, selectedApp.userEmail, 'rejected')}
+                          className="btn flex-1"
+                          style={{ color: 'var(--danger)', borderColor: 'var(--danger)' }}
+                        >
+                          REJECT APPLICATION
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedApp.status === 'scheduled' && (
+                    <div className="border-top pt-16">
+                      <div className="p-16 mb-16" style={{ background: 'var(--accent-soft)', border: '2px solid var(--accent)', borderRadius: '4px' }}>
+                        <label className="flabel block mb-8" style={{ color: 'var(--accent)' }}>Scheduled Interview Link</label>
+                        {(() => {
+                          const linkMatch = selectedApp.message?.match(/\[Interview Link:\s*([^\]\n]+)\]/);
+                          const meetingUrl = linkMatch ? linkMatch[1] : selectedApp.meetingLink;
+                          const formattedUrl = meetingUrl ? (meetingUrl.startsWith('http') ? meetingUrl : `https://${meetingUrl}`) : null;
+                          return formattedUrl ? (
+                            <a href={formattedUrl} target="_blank" rel="noreferrer" className="btn btn-xs btn-full text-accent truncate">
+                              {meetingUrl}
+                            </a>
+                          ) : <p className="text-xs text-ink-mute">No meeting link found.</p>;
+                        })()}
+
+                        {(() => {
+                          const dateMatch = selectedApp.message?.match(/\[Interview Date:\s*([^\]\n]+)\]/);
+                          const meetingDateVal = dateMatch ? dateMatch[1] : selectedApp.meetingDate;
+                          return meetingDateVal ? (
+                            <div className="mt-12">
+                              <label className="flabel block mb-4">Interview Date & Time</label>
+                              <p className="text-xs font-bold text-ink">
+                                {new Date(meetingDateVal).toLocaleString()}
+                              </p>
+                            </div>
+                          ) : null;
+                        })()}
+                      </div>
+
+                      <div className="flex gap-12">
+                        <button
+                          onClick={() => handleFinalVerdictTeacher(selectedApp.id, selectedApp.userEmail, 'approved')}
+                          className="btn btn-primary flex-1"
+                        >
+                          APPROVE MENTOR NOW
+                        </button>
+                        <button
+                          onClick={() => handleFinalVerdictTeacher(selectedApp.id, selectedApp.userEmail, 'rejected')}
+                          className="btn flex-1"
+                          style={{ color: 'var(--danger)', borderColor: 'var(--danger)' }}
+                        >
+                          REJECT APPLICATION
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedApp.status === 'approved' && (
+                    <div className="border-top pt-16">
+                      <div className="p-16" style={{ background: 'var(--danger-bg)', border: '2px solid var(--danger)', borderRadius: '4px' }}>
+                        <label className="flabel block mb-4" style={{ color: 'var(--danger)' }}>Active Mentor</label>
+                        <p className="text-xs text-ink-soft mb-16">This mentor is currently assigned to teach this course.</p>
+                        <button
+                          onClick={() => handleRemoveTeacher(selectedApp.id, selectedApp.userId || (selectedApp as any).user_id, selectedApp.courseId || selectedApp.qualification)}
+                          className="btn btn-full"
+                          style={{ background: 'var(--danger)', color: '#fff', borderColor: 'var(--danger)' }}
+                        >
+                          REMOVE TEACHER
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+      {/* Course Edit/Create Modal */}
+      {isCourseModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-16">
+          <div onClick={() => setIsCourseModalOpen(false)} className="drawer-overlay visible" />
+          <div
+            className="relative w-full max-w-2xl bg-white max-h-[90vh] flex flex-col"
+            style={{ border: '2px solid var(--ink)', boxShadow: '8px 8px 0 0 var(--ink)', borderRadius: '4px', overflow: 'hidden' }}>
+              <div className="p-16 border-bottom flex items-center justify-between shrink-0">
+                <div>
+                  <h2 className="text-xl font-bold tracking-tight">{editingCourse ? 'Edit Course' : 'Add Course'}</h2>
+                  <p className="text-xs text-ink-soft mt-4">{editingCourse ? `Editing: ${editingCourse.title}` : 'Create a new course'}</p>
+                </div>
+                <button onClick={() => setIsCourseModalOpen(false)} className="btn btn-xs">
+                  ×
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-auto p-16 space-y-16">
+                <div className="grid-2">
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label className="flabel block mb-8">Course Title *</label>
+                    <input value={courseForm.title} onChange={e => setCourseForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Introduction to AI" className="input" />
+                  </div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label className="flabel block mb-8">Description</label>
+                    <textarea value={courseForm.description} onChange={e => setCourseForm(f => ({ ...f, description: e.target.value }))} rows={3} placeholder="Course description..." className="input" style={{ resize: 'none' }} />
+                  </div>
+                  <div>
+                    <label className="flabel block mb-8">Price (₹/month)</label>
+                    <input type="number" value={courseForm.price} onChange={e => setCourseForm(f => ({ ...f, price: Number(e.target.value) }))} placeholder="0 = Free" className="input" />
+                  </div>
+                  <div>
+                    <label className="flabel block mb-8">Category</label>
+                    <select value={courseForm.category} onChange={e => setCourseForm(f => ({ ...f, category: e.target.value }))} className="input">
+                      <option value="alternative">Alternative</option>
+                      <option value="education">Education</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="flabel block mb-8">Folder</label>
+                    <input value={courseForm.folder} onChange={e => setCourseForm(f => ({ ...f, folder: e.target.value }))} placeholder="e.g. Artificial Intelligence" className="input" />
+                  </div>
+                  <div>
+                    <label className="flabel block mb-8">Level</label>
+                    <select value={courseForm.level} onChange={e => setCourseForm(f => ({ ...f, level: e.target.value }))} className="input">
+                      <option value="">Any Level</option>
+                      <option value="beginner">Beginner</option>
+                      <option value="intermediate">Intermediate</option>
+                      <option value="advanced">Advanced</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="flabel block mb-8">Duration</label>
+                    <input value={courseForm.duration} onChange={e => setCourseForm(f => ({ ...f, duration: e.target.value }))} placeholder="e.g. 8 weeks" className="input" />
+                  </div>
+                  <div>
+                    <label className="flabel block mb-8">Class Level</label>
+                    <input value={courseForm.classLevel} onChange={e => setCourseForm(f => ({ ...f, classLevel: e.target.value }))} placeholder="e.g. 6-8" className="input" />
+                  </div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label className="flabel block mb-8">External URL (for provider courses)</label>
+                    <input value={courseForm.externalUrl} onChange={e => setCourseForm(f => ({ ...f, externalUrl: e.target.value }))} placeholder="https://..." className="input" />
+                  </div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label className="flex items-center gap-12 cursor-pointer">
+                      <div className="relative">
+                        <input type="checkbox" checked={courseForm.comingSoon} onChange={e => setCourseForm(f => ({ ...f, comingSoon: e.target.checked }))} className="sr-only peer" />
+                        <div className="w-11 h-6 bg-slate-200 rounded-full peer-checked:bg-amber-500 transition-colors" />
+                        <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform" />
+                      </div>
+                      <div>
+                        <span className="block text-sm font-bold text-ink">Coming Soon</span>
+                        <span className="block text-[10px] text-ink-mute">Hide course from students until ready</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-16 border-top flex items-center justify-end gap-12 shrink-0">
+                <button onClick={() => setIsCourseModalOpen(false)} className="btn btn-secondary">
+                  Cancel
+                </button>
+                <button onClick={handleSaveCourse} disabled={savingCourse} className="btn btn-primary">
+                  {savingCourse ? '...' : ''}
+                  {editingCourse ? 'Update Course' : 'Create Course'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
     </div>
-    <div className="bg-amber-50 p-6 rounded-2xl border border-amber-200">
-      <span className="text-[10px] font-black uppercase tracking-widest text-amber-600">First Class</span>
-      <p className="text-3xl sm:text-4xl font-black mt-2 text-amber-700">{planBreakdown.first_class}</p>
-    </div>
-    <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-200">
-      <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Full Access</span>
-      <p className="text-3xl sm:text-4xl font-black mt-2 text-emerald-700">{planBreakdown.full}</p>
-    </div>
-  </div>
-
-   {/* Course enrollment table */}
- <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden">
- <div className="p-4 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
- <h3 className="text-xl font-black tracking-tight">Enrollments by Course</h3>
- <div className="flex gap-2">
- {(['all', 'free', 'paid'] as const).map(f => (
- <button key={f} onClick={() => setPriceFilter(f)}
- className={`px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors ${
- priceFilter === f ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 :bg-slate-700'
- }`}
- >
- {f === 'free' ? '₹0 (Free)' : f === 'paid' ? 'Paid' : 'All'}
- </button>
- ))}
- </div>
- </div>
- <div className="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
- <table className="w-full text-left border-collapse">
- <thead>
- <tr className="bg-slate-50/50 /30 sticky top-0 backdrop-blur-md">
- <th className="px-4 sm:px-8 py-4 sm:py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Course</th>
- <th className="px-4 sm:px-8 py-4 sm:py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hidden sm:table-cell">Price</th>
- <th className="px-4 sm:px-8 py-4 sm:py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hidden sm:table-cell">Category</th>
- <th className="px-4 sm:px-8 py-4 sm:py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-right">Enrollments</th>
- </tr>
- </thead>
- <tbody className="divide-y divide-slate-100 /50">
- {coursesList
- .filter(c => priceFilter === 'all' || (priceFilter === 'free' ? (!c.price || c.price === 0) : (c.price && c.price > 0)))
- .map((course: any) => {
- const count = enrollmentCounts[course.id] || 0;
- return (
- <tr key={course.id} className="hover:bg-slate-50/80 :bg-slate-800/40 transition-colors">
- <td className="px-4 sm:px-8 py-4 sm:py-5">
- <div className="flex items-center gap-3 sm:gap-4">
- <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
- {course.title?.charAt(0) || 'C'}
- </div>
- <div className="min-w-0">
- <div className="flex items-center gap-2">
- <p className="font-bold text-sm sm:text-base text-slate-900 truncate">{course.title || 'Untitled'}</p>
- {course.comingSoon && <span className="text-[9px] px-2 py-0.5 bg-amber-500/20 text-amber-600 font-black uppercase tracking-wider rounded-full">Soon</span>}
- </div>
- <p className="text-[10px] text-slate-400 font-medium hidden sm:block">{course.id?.slice(0, 8)}...</p>
- </div>
- </div>
- </td>
- <td className="px-4 sm:px-8 py-4 sm:py-5 hidden sm:table-cell">
- <span className={`text-xs font-bold ${!course.price || course.price === 0 ? 'text-emerald-500' : 'text-slate-700 '}`}>
-  {!course.price || course.price === 0 ? 'Free' : `₹${course.price}/month`}
- </span>
- </td>
- <td className="px-4 sm:px-8 py-4 sm:py-5 hidden sm:table-cell">
- <span className="text-xs font-medium text-slate-500">{course.category || 'Uncategorized'}</span>
- </td>
- <td className="px-4 sm:px-8 py-4 sm:py-5 text-right">
- <span className={`inline-flex items-center justify-center w-12 h-12 rounded-xl font-black text-lg ${
- count > 0 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-slate-100 text-slate-400'
- }`}>
- {count}
- </span>
- </td>
- </tr>
- );
- })}
- {coursesList.filter(c => priceFilter === 'all' || (priceFilter === 'free' ? (!c.price || c.price === 0) : (c.price && c.price > 0))).length === 0 && (
- <tr>
- <td colSpan={4} className="px-8 py-16 text-center">
- <p className="text-slate-400 font-medium">No {priceFilter === 'free' ? 'free' : priceFilter === 'paid' ? 'paid' : ''} courses found</p>
- </td>
- </tr>
- )}
- </tbody>
- </table>
- </div>
- </div>
- </div>
- )}
- {activeTab === 'classes' && (
- <div className="space-y-6">
- {loadingClasses ? (
- <div className="flex justify-center py-24"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>
- ) : scheduledClasses.length === 0 ? (
- <div className="text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-slate-200 ">
- <Calendar className="w-16 h-16 text-slate-300 mx-auto mb-6" />
- <h3 className="text-xl font-black text-slate-400">No Scheduled Classes</h3>
- <p className="text-slate-500 text-sm font-medium mt-2">Teachers have not scheduled any live classes yet.</p>
- </div>
- ) : (
- <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
- {scheduledClasses.map((sc) => (
- <div key={sc.id} className="bg-white p-5 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 shadow-sm">
- <div className="flex items-center gap-3 mb-4">
- <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center font-black text-white shrink-0">
- <Calendar className="w-5 h-5" />
- </div>
- <div className="flex-1 min-w-0">
- <p className="font-black text-slate-900 truncate">{sc.title}</p>
- <p className="text-[10px] text-slate-400 font-medium mt-0.5">
- {sc.scheduled_at ? new Date(sc.scheduled_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'No date'}
- </p>
- </div>
- </div>
- <p className="text-xs font-medium text-slate-500 mb-4 line-clamp-2">{sc.description || 'No description'}</p>
- <div className="flex items-center gap-3 mb-4">
- <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Teacher:</span>
- <span className="text-xs font-bold text-slate-700 ">{sc.users?.display_name || sc.teacher_id?.slice(0, 8) || 'Unknown'}</span>
- </div>
- <a href={sc.meeting_link} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl transition-colors text-sm">
- <Video className="w-4 h-4" /> Join Class
- </a>
- </div>
- ))}
- </div>
- )}
- </div>
- )}
-
- {activeTab === 'courses' && (
- <div className="space-y-8">
- {/* Summary cards */}
- <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
- <div className="bg-white p-6 rounded-2xl border border-slate-200 ">
- <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Courses</span>
- <p className="text-3xl sm:text-4xl font-black mt-2 text-slate-900 ">{coursesList.length}</p>
- </div>
- <div className="bg-white p-6 rounded-2xl border border-slate-200 ">
- <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Enrollments</span>
- <p className="text-3xl sm:text-4xl font-black mt-2 text-emerald-500">{enrollments.length}</p>
- </div>
- <div className="bg-white p-6 rounded-2xl border border-slate-200 ">
- <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Enrollments</span>
- <p className="text-3xl sm:text-4xl font-black mt-2 text-blue-500">{activeCount}</p>
- </div>
- </div>
-
- {/* Search & Add bar */}
- <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
- <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
- <input type="text" placeholder="Search courses..." value={courseSearch} onChange={e => setCourseSearch(e.target.value)}
- className="w-full sm:w-64 p-4 bg-white rounded-2xl border border-slate-200 outline-none focus:border-emerald-500 transition-colors font-bold text-sm" />
- <div className="flex gap-2">
- {(['all', 'free', 'paid'] as const).map(f => (
- <button key={f} onClick={() => setCoursePriceFilter(f)}
- className={`px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors ${
- coursePriceFilter === f ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 :bg-slate-700'
- }`}>
- {f === 'free' ? 'Free' : f === 'paid' ? 'Paid' : 'All'}
- </button>
- ))}
- </div>
- </div>
- <button onClick={openAddCourse} className="flex items-center gap-2 px-6 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl transition-colors shadow-lg shadow-emerald-500/20">
- <Plus className="w-5 h-5" /> Add Course
- </button>
- </div>
-
- {/* Course table */}
- <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden">
- <div className="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
- <table className="w-full text-left border-collapse">
- <thead>
- <tr className="bg-slate-50/50 /30 sticky top-0 backdrop-blur-md">
- <th className="px-4 sm:px-8 py-4 sm:py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Course</th>
- <th className="px-4 sm:px-8 py-4 sm:py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hidden md:table-cell">Folder</th>
- <th className="px-4 sm:px-8 py-4 sm:py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Price</th>
- <th className="px-4 sm:px-8 py-4 sm:py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-right">Actions</th>
- </tr>
- </thead>
- <tbody className="divide-y divide-slate-100 /50">
- {filteredCoursesList.map((course: any) => (
- <tr key={course.id} className="hover:bg-slate-50/80 :bg-slate-800/40 transition-colors">
- <td className="px-4 sm:px-8 py-4 sm:py-5">
- <div className="flex items-center gap-3 sm:gap-4">
-  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
-  {course.title?.charAt(0) || 'C'}
-  </div>
- <div className="min-w-0">
- <div className="flex items-center gap-2">
- <p className="font-bold text-sm sm:text-base text-slate-900 truncate">{course.title || 'Untitled'}</p>
- {course.comingSoon && <span className="text-[9px] px-2 py-0.5 bg-amber-500/20 text-amber-600 font-black uppercase tracking-wider rounded-full">Soon</span>}
- </div>
- <p className="text-[10px] text-slate-400 font-medium">{course.id?.slice(0, 8)}...</p>
- </div>
- </div>
- </td>
- <td className="px-4 sm:px-8 py-4 sm:py-5 hidden md:table-cell">
- <span className="text-xs font-medium text-slate-500">{course.folder || '—'}</span>
- </td>
- <td className="px-4 sm:px-8 py-4 sm:py-5">
- <span className={`text-xs font-bold ${!course.price || course.price === 0 ? 'text-emerald-500' : 'text-slate-700 '}`}>
-  {!course.price || course.price === 0 ? 'Free' : `₹${course.price}/month`}
- </span>
- </td>
- <td className="px-4 sm:px-8 py-4 sm:py-5 text-right">
- <div className="flex items-center justify-end gap-2">
- <button onClick={() => handleToggleComingSoon(course)} className={`p-2.5 rounded-xl transition-colors ${
- course.comingSoon
- ? 'bg-amber-100 /30 text-amber-600 hover:bg-amber-200 :bg-amber-900/50'
- : 'bg-emerald-100 /30 text-emerald-600 hover:bg-emerald-200 :bg-emerald-900/50'
- }`} title={course.comingSoon ? 'Release course' : 'Mark as Coming Soon'}>
- {course.comingSoon ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
- </button>
- <button onClick={() => openEditCourse(course)} className="p-2.5 bg-slate-100 hover:bg-emerald-100 :bg-emerald-900/30 rounded-xl transition-colors" title="Edit">
- <Pencil className="w-4 h-4 text-slate-600 " />
- </button>
- <button onClick={() => handleDeleteCourse(course.id, course.title)} className="p-2.5 bg-slate-100 hover:bg-rose-100 :bg-rose-900/30 rounded-xl transition-colors" title="Delete">
- <Trash2 className="w-4 h-4 text-rose-500" />
- </button>
- </div>
- </td>
- </tr>
- ))}
- {filteredCoursesList.length === 0 && (
- <tr>
- <td colSpan={4} className="px-8 py-16 text-center">
- <Database className="w-12 h-12 text-slate-200 mx-auto mb-4" />
- <p className="text-slate-400 font-medium">{courseSearch ? 'No courses match your search' : 'No courses yet. Add your first course.'}</p>
- </td>
- </tr>
- )}
- </tbody>
- </table>
- </div>
- </div>
- </div>
- )}
- </motion.div>
- </AnimatePresence>
- </div>
- </main>
-
- {/* Premium Application Modal */}
- <AnimatePresence>
- {selectedApp && (
- <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
- <motion.div
- initial={{ opacity: 0 }}
- animate={{ opacity: 1 }}
- exit={{ opacity: 0 }}
- onClick={() => setSelectedApp(null)}
- className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl"
- />
- <motion.div
- initial={{ opacity: 0, scale: 0.9, y: 20 }}
- animate={{ opacity: 1, scale: 1, y: 0 }}
- exit={{ opacity: 0, scale: 0.9, y: 20 }}
- className="relative w-full max-w-2xl mx-2 sm:mx-0 bg-white rounded-[2rem] sm:rounded-[3rem] border border-slate-200 shadow-2xl overflow-hidden"
- >
- <div className="p-4 sm:p-10">
- <div className="flex items-center justify-between">
- <div>
- <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-2">Mentor Review</h2>
- <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Application Dossier #{selectedApp.id.slice(0, 8)}</p>
- </div>
- <button onClick={() => setSelectedApp(null)} className="p-3 bg-slate-100 rounded-2xl hover:bg-slate-200 :bg-slate-700 transition-colors">
- <X className="w-6 h-6" />
- </button>
- </div>
-
- <div className="space-y-8 max-h-[60vh] overflow-y-auto pr-4 custom-scrollbar">
- <section>
- <label className="block text-xs font-black text-emerald-500 uppercase tracking-widest mb-4">Applicant Profile</label>
- <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
- <div>
- <p className="text-sm font-black text-slate-400 uppercase mb-1">Name</p>
- <p className="font-bold text-base sm:text-lg">{selectedApp.userName}</p>
- </div>
- <div>
- <p className="text-sm font-black text-slate-400 uppercase mb-1">Target Curriculum</p>
- <p className="font-bold text-base sm:text-lg">{selectedApp.courseTitle}</p>
- </div>
- <div>
- <p className="text-sm font-black text-slate-400 uppercase mb-1">Highest Qualification</p>
- <p className="font-bold text-base sm:text-lg">{selectedApp.highestQualification || (selectedApp as any).highest_qualification || 'Not specified'}</p>
- </div>
- <div className="sm:col-span-2">
- <p className="text-sm font-black text-slate-400 uppercase mb-1">Languages to Teach (Total: {selectedApp.languagesCount || 0})</p>
- <p className="font-bold text-base text-emerald-600">{selectedApp.languages || 'Not specified'}</p>
- </div>
- </div>
- </section>
-
- <section>
- <label className="block text-xs font-black text-emerald-500 uppercase tracking-widest mb-4">Professional Experience</label>
- <p className="text-slate-600 font-medium leading-relaxed bg-slate-50 /50 p-6 rounded-[2rem]">
- {selectedApp.experience || 'No experience provided.'}
- </p>
- </section>
-
- {selectedApp.status === 'pending' && (
- <div className="pt-8 border-t border-slate-100 ">
- <div className="bg-slate-50 /50 p-4 sm:p-6 rounded-[2rem] mb-6">
- <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Schedule Interview</label>
- <div className="flex flex-col gap-4">
- <div className="flex flex-col sm:flex-row gap-4">
- <div className="flex-1">
- <label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Interview Date & Time</label>
- <input
- type="datetime-local"
- value={meetDate}
- onChange={e => setMeetDate(e.target.value)}
- className="w-full p-4 bg-white rounded-2xl outline-none font-bold border border-transparent focus:border-emerald-500 transition-colors"
- />
- </div>
- <div className="flex-1">
- <label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Google Meet / Zoom Link</label>
- <input
- value={meetLink}
- onChange={e => setMeetLink(e.target.value)}
- placeholder="Paste Link..."
- className="w-full p-4 bg-white rounded-2xl outline-none font-bold border border-transparent focus:border-emerald-500 transition-colors"
- />
- </div>
- </div>
- <button
- onClick={() => handleApproveApp(selectedApp.id, selectedApp.userEmail)}
- className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl transition-colors shadow-lg shadow-emerald-500/20"
- >
- Schedule Interview & Send Link
- </button>
- </div>
- </div>
-
- <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
- <button
- onClick={() => handleFinalVerdictTeacher(selectedApp.id, selectedApp.userEmail, 'approved')}
- className="flex-1 py-4 sm:py-5 bg-emerald-500 text-white font-black rounded-[2rem] shadow-xl shadow-emerald-500/20 hover:scale-[1.01] transition-transform text-sm sm:text-base"
- >
- APPROVE MENTOR NOW
- </button>
- <button
- onClick={() => handleFinalVerdictTeacher(selectedApp.id, selectedApp.userEmail, 'rejected')}
- className="flex-1 py-4 sm:py-5 bg-red-500 text-white font-black rounded-[2rem] shadow-xl shadow-red-500/20 hover:scale-[1.01] transition-transform text-sm sm:text-base"
- >
- REJECT APPLICATION
- </button>
- </div>
- </div>
- )}
-
- {selectedApp.status === 'scheduled' && (
- <div className="pt-8 border-t border-slate-100 ">
- <div className="bg-blue-50 /20 p-4 sm:p-6 rounded-[2rem] mb-6 border border-blue-200 ">
- <label className="block text-xs font-black text-blue-600 uppercase tracking-widest mb-2">Scheduled Interview Link</label>
- {(() => {
- const linkMatch = selectedApp.message?.match(/\[Interview Link:\s*([^\]\n]+)\]/);
- const meetingUrl = linkMatch ? linkMatch[1] : selectedApp.meetingLink;
- const formattedUrl = meetingUrl ? (meetingUrl.startsWith('http') ? meetingUrl : `https://${meetingUrl}`) : null;
- return formattedUrl ? (
- <a href={formattedUrl} target="_blank" rel="noreferrer" className="block w-full p-4 bg-white rounded-2xl font-bold text-blue-600 hover:underline truncate">
- {meetingUrl}
- </a>
- ) : <p className="text-sm text-slate-500">No meeting link found.</p>;
- })()}
-
- {(() => {
- const dateMatch = selectedApp.message?.match(/\[Interview Date:\s*([^\]\n]+)\]/);
- const meetingDateVal = dateMatch ? dateMatch[1] : selectedApp.meetingDate;
- return meetingDateVal ? (
- <div className="mt-4">
- <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Interview Date & Time</label>
- <p className="text-sm font-bold text-slate-700 ">
- {new Date(meetingDateVal).toLocaleString()}
- </p>
- </div>
- ) : null;
- })()}
- </div>
-
- <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
- <button
- onClick={() => handleFinalVerdictTeacher(selectedApp.id, selectedApp.userEmail, 'approved')}
- className="flex-1 py-4 sm:py-5 bg-emerald-500 text-white font-black rounded-[2rem] shadow-xl shadow-emerald-500/20 hover:scale-[1.01] transition-transform text-sm sm:text-base"
- >
- APPROVE MENTOR NOW
- </button>
- <button
- onClick={() => handleFinalVerdictTeacher(selectedApp.id, selectedApp.userEmail, 'rejected')}
- className="flex-1 py-4 sm:py-5 bg-red-500 text-white font-black rounded-[2rem] shadow-xl shadow-red-500/20 hover:scale-[1.01] transition-transform text-sm sm:text-base"
- >
- REJECT APPLICATION
- </button>
- </div>
- </div>
- )}
-
- {selectedApp.status === 'approved' && (
- <div className="pt-8 border-t border-slate-100 ">
- <div className="bg-rose-50 /20 p-6 rounded-[2rem] border border-rose-200 ">
- <label className="block text-xs font-black text-rose-600 uppercase tracking-widest mb-2">Active Mentor</label>
- <p className="text-sm text-slate-600 mb-6 font-medium">This mentor is currently assigned to teach this course.</p>
- <button
- onClick={() => handleRemoveTeacher(selectedApp.id, selectedApp.userId || (selectedApp as any).user_id, selectedApp.courseId || selectedApp.qualification)}
- className="w-full py-4 bg-rose-500 text-white font-black rounded-2xl hover:bg-rose-600 transition-colors"
- >
- REMOVE TEACHER
- </button>
- </div>
- </div>
- )}
- </div>
- </div>
- </motion.div>
- </div>
- )}
- </AnimatePresence>
-
- {/* Course Edit/Create Modal */}
- <AnimatePresence>
- {isCourseModalOpen && (
- <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
- <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsCourseModalOpen(false)} className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl" />
- <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
- className="relative w-full max-w-2xl bg-white rounded-[2rem] border border-slate-200 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
- <div className="p-6 sm:p-8 border-b border-slate-100 flex items-center justify-between shrink-0">
- <div>
- <h2 className="text-2xl font-black tracking-tight">{editingCourse ? 'Edit Course' : 'Add Course'}</h2>
- <p className="text-xs text-slate-400 font-medium mt-1">{editingCourse ? `Editing: ${editingCourse.title}` : 'Create a new course'}</p>
- </div>
- <button onClick={() => setIsCourseModalOpen(false)} className="p-3 bg-slate-100 rounded-2xl hover:bg-slate-200 :bg-slate-700 transition-colors">
- <X className="w-5 h-5" />
- </button>
- </div>
-
- <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 custom-scrollbar">
- <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
- <div className="sm:col-span-2">
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Course Title *</label>
- <input value={courseForm.title} onChange={e => setCourseForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Introduction to AI" className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold border border-transparent focus:border-emerald-500 transition-colors" />
- </div>
- <div className="sm:col-span-2">
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Description</label>
- <textarea value={courseForm.description} onChange={e => setCourseForm(f => ({ ...f, description: e.target.value }))} rows={3} placeholder="Course description..." className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold border border-transparent focus:border-emerald-500 transition-colors resize-none" />
- </div>
- <div>
-  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Price (₹/month)</label>
- <input type="number" value={courseForm.price} onChange={e => setCourseForm(f => ({ ...f, price: Number(e.target.value) }))} placeholder="0 = Free" className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold border border-transparent focus:border-emerald-500 transition-colors" />
- </div>
- <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Category</label>
- <select value={courseForm.category} onChange={e => setCourseForm(f => ({ ...f, category: e.target.value }))} className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold border border-transparent focus:border-emerald-500 transition-colors">
- <option value="alternative">Alternative</option>
- <option value="education">Education</option>
- </select>
- </div>
- <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Folder</label>
- <input value={courseForm.folder} onChange={e => setCourseForm(f => ({ ...f, folder: e.target.value }))} placeholder="e.g. Artificial Intelligence" className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold border border-transparent focus:border-emerald-500 transition-colors" />
- </div>
- <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Level</label>
- <select value={courseForm.level} onChange={e => setCourseForm(f => ({ ...f, level: e.target.value }))} className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold border border-transparent focus:border-emerald-500 transition-colors">
- <option value="">Any Level</option>
- <option value="beginner">Beginner</option>
- <option value="intermediate">Intermediate</option>
- <option value="advanced">Advanced</option>
- </select>
- </div>
- <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Duration</label>
- <input value={courseForm.duration} onChange={e => setCourseForm(f => ({ ...f, duration: e.target.value }))} placeholder="e.g. 8 weeks" className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold border border-transparent focus:border-emerald-500 transition-colors" />
- </div>
- <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Class Level</label>
- <input value={courseForm.classLevel} onChange={e => setCourseForm(f => ({ ...f, classLevel: e.target.value }))} placeholder="e.g. 6-8" className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold border border-transparent focus:border-emerald-500 transition-colors" />
-  </div>
- <div className="sm:col-span-2">
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">External URL (for provider courses)</label>
- <input value={courseForm.externalUrl} onChange={e => setCourseForm(f => ({ ...f, externalUrl: e.target.value }))} placeholder="https://..." className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold border border-transparent focus:border-emerald-500 transition-colors" />
- </div>
- <div className="sm:col-span-2">
- <label className="flex items-center gap-3 cursor-pointer">
- <div className="relative">
- <input type="checkbox" checked={courseForm.comingSoon} onChange={e => setCourseForm(f => ({ ...f, comingSoon: e.target.checked }))} className="sr-only peer" />
- <div className="w-11 h-6 bg-slate-200 rounded-full peer-checked:bg-amber-500 transition-colors" />
- <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform" />
- </div>
- <div>
- <span className="block text-sm font-bold text-slate-900 ">Coming Soon</span>
- <span className="block text-[10px] text-slate-400 font-medium">Hide course from students until ready</span>
- </div>
- </label>
- </div>
- </div>
- </div>
-
- <div className="p-6 sm:p-8 border-t border-slate-100 flex items-center justify-end gap-4 shrink-0">
- <button onClick={() => setIsCourseModalOpen(false)} className="px-6 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 :bg-slate-700 transition-colors">
- Cancel
- </button>
- <button onClick={handleSaveCourse} disabled={savingCourse} className="flex items-center gap-2 px-6 py-4 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 text-white font-black rounded-2xl transition-colors shadow-lg shadow-emerald-500/20">
- {savingCourse ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
- {editingCourse ? 'Update Course' : 'Create Course'}
- </button>
- </div>
- </motion.div>
- </div>
- )}
- </AnimatePresence>
- </div>
- );
+  );
 };
 
 export default AdminDashboard;
