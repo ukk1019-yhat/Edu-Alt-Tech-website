@@ -20,7 +20,18 @@ export interface ResourceItem {
  classLevel?: string;
 }
 
-export const STATIC_RESOURCES: ResourceItem[] = [];
+export const STATIC_RESOURCES: ResourceItem[] = [
+  { title: 'Complete Guide to Calculus', description: 'Derivatives, integrals, and limits explained with step-by-step examples for engineering students.', type: 'pdf', category: 'Mathematics', premium: false, downloads: '2,341', url: 'https://drive.google.com/uc?export=download&id=1sample_calc', classLevel: 'College/Engineering' },
+  { title: 'Python for Data Science', description: 'Comprehensive Python notes covering NumPy, Pandas, Matplotlib, and basic ML algorithms.', type: 'notes', category: 'Computer Science', premium: false, downloads: '1,892', url: 'https://drive.google.com/uc?export=download&id=1sample_python', classLevel: 'College/Engineering' },
+  { title: 'Physics Formula Sheet', description: 'Complete formula reference for mechanics, electromagnetism, thermodynamics, and modern physics.', type: 'pdf', category: 'Science', premium: false, downloads: '3,104', url: 'https://drive.google.com/uc?export=download&id=1sample_physics', classLevel: 'JEE Main' },
+  { title: 'JEE Main Previous Year Papers', description: 'Compiled PYQs from the last 5 years with detailed solutions for all three subjects.', type: 'pdf', category: 'Mathematics', premium: true, downloads: '4,557', url: 'https://drive.google.com/uc?export=download&id=1sample_jee', classLevel: 'JEE Main' },
+  { title: 'Organic Chemistry Reactions', description: 'Curated list of named reactions, mechanisms, and reagents for quick revision.', type: 'notes', category: 'Science', premium: false, downloads: '1,234', url: 'https://drive.google.com/uc?export=download&id=1sample_chem', classLevel: 'College/Engineering' },
+  { title: 'Data Structures & Algorithms Workbook', description: 'Practice problems with solutions for arrays, trees, graphs, DP, and sorting algorithms.', type: 'worksheet', category: 'Computer Science', premium: false, downloads: '976', url: 'https://drive.google.com/uc?export=download&id=1sample_dsa', classLevel: 'College/Engineering' },
+  { title: 'Linear Algebra Quick Reference', description: 'Matrices, vector spaces, eigenvalues, and transformations — condensed for exam prep.', type: 'pdf', category: 'Mathematics', premium: false, downloads: '1,567', url: 'https://drive.google.com/uc?export=download&id=1sample_la', classLevel: 'College/Engineering' },
+  { title: 'English Grammar Handbook', description: 'Complete grammar guide with tenses, voice, narration, and common error exercises.', type: 'notes', category: 'English', premium: false, downloads: '2,003', url: 'https://drive.google.com/uc?export=download&id=1sample_eng', classLevel: 'College/Engineering' },
+  { title: 'Probability & Statistics Cheat Sheet', description: 'Key distributions, hypothesis testing, and statistical inference formulas at a glance.', type: 'pdf', category: 'Mathematics', premium: true, downloads: '889', url: 'https://drive.google.com/uc?export=download&id=1sample_stats', classLevel: 'College/Engineering' },
+  { title: 'Web Development Bootcamp Notes', description: 'HTML/CSS/JavaScript/React — full-stack web development concepts with code snippets.', type: 'notes', category: 'Computer Science', premium: false, downloads: '2,451', url: 'https://drive.google.com/uc?export=download&id=1sample_web', classLevel: 'College/Engineering' },
+];
 
 const typeIcons: Record<string, React.ReactNode> = {
  pdf: <FileText className="w-5 h-5" />,
