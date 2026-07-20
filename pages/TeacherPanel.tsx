@@ -10,7 +10,7 @@ import { toast } from 'react-hot-toast';
 import { getLastReadTimestamps, markCourseRead } from '../lib/chatNotifications';
 import HamsterLoader from '../components/HamsterLoader';
 
-const ADMIN_EMAILS = ['ukkukk97@gmail.com', 'umakrishnakanthchokkapu15@gmail.com'];
+const ADMIN_EMAILS = ['ukkukk97@gmail.com', 'umakrishnakanthchokkapu15@gmail.com', 'akulasatyanarayana2006@gmail.com'];
 
 const TeacherPanel: React.FC = () => {
  const navigate = useNavigate();

@@ -70,10 +70,10 @@ const Resources: React.FC = () => {
  const data = d.data() as any;
  return { title: data.title || '', description: data.description || '', type: data.type || 'pdf', category: data.category || 'Computer Science', premium: data.premium || false, downloads: data.downloads || '0', url: data.url || '', classLevel: data.class_level || 'General' } as ResourceItem;
  });
- setFirebaseResources(items);
- } catch {}
- };
- fetchResources();
+  setFirebaseResources(items);
+  } catch (e) { console.error('Resources: Failed to fetch resources from Firebase', e); }
+  };
+  fetchResources();
  }, []);
 
   useEffect(() => {

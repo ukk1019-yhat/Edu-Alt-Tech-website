@@ -36,10 +36,10 @@ function ProblemCard({ problem, user, onLockedClick }: { problem: LeetCodeProble
  user_id: user.uid,
  practice_type: 'leetcode',
  item_id: problem.num,
- item_title: problem.title,
- opened_at: new Date().toISOString(),
- }); } catch {}
- })();
+  item_title: problem.title,
+  opened_at: new Date().toISOString(),
+  }); } catch (e) { console.error('Practice: Failed to log leetcode problem view', e); }
+  })();
  };
 
  return (
@@ -169,10 +169,10 @@ function EnglishExerciseCard({ exercise, user, onLockedClick }: { exercise: Engl
  user_id: user.uid,
  practice_type: 'english',
  item_id: exercise.num,
- item_title: exercise.title,
- opened_at: new Date().toISOString(),
- }); } catch {}
- })();
+  item_title: exercise.title,
+  opened_at: new Date().toISOString(),
+  }); } catch (e) { console.error('Practice: Failed to log english exercise view', e); }
+  })();
  };
 
  return (
@@ -292,10 +292,10 @@ const Practice: React.FC = () => {
  const data = d.data() as any;
  return { num: data.num, title: data.title, topic: data.topic || '', videoUrl: data.videoUrl || '', leetcodeUrl: data.leetcodeUrl || '', difficulty: data.difficulty || 'Easy' } as LeetCodeProblem;
  });
- setAdminProblems(problems);
- } catch {}
- };
- fetchAdmin();
+  setAdminProblems(problems);
+  } catch (e) { console.error('Practice: Failed to fetch admin problems', e); }
+  };
+  fetchAdmin();
  }, []);
 
  const currentProblems = problemSet === 'popular' ? POPULAR_PROBLEMS : problemSet === 'leetcode150' ? LEETCODE_150_PROBLEMS : problemSet === 'top150' ? TOP_INTERVIEW_150 : adminProblems;

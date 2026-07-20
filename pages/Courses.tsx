@@ -121,7 +121,7 @@ const Courses: React.FC = () => {
     }
     const localDeleted = JSON.parse(localStorage.getItem('platformCourseDeletions') || '[]');
     platformCourses = platformCourses.filter(c => !localDeleted.includes(c.id));
-    } catch {}
+    } catch (e) { console.error('Courses: Failed to parse local platform course overrides', e); }
     fetchedCourses.push(...platformCourses);
    // Sort: provider courses first (with their order preserved), then DB courses
    const providerCourses = fetchedCourses.filter(c => c.id.startsWith('ai-'));

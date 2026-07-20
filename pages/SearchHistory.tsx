@@ -51,7 +51,7 @@ const SearchHistory: React.FC = () => {
           });
         });
         setHistory(items);
-      } catch {}
+      } catch (e) { console.error('SearchHistory: Failed to load search history', e); }
       setLoading(false);
     });
     return () => unsub();
@@ -61,13 +61,13 @@ const SearchHistory: React.FC = () => {
     try {
       await deleteDoc(doc(db, 'ai_search_history', id));
       setHistory(prev => prev.filter(h => h.id !== id));
-    } catch {}
+    } catch (e) { console.error('SearchHistory: Failed to delete history item', e); }
   };
 
   const handleClearAll = async () => {
     if (!window.confirm('Clear all search history?')) return;
     for (const item of history) {
-      try { await deleteDoc(doc(db, 'ai_search_history', item.id)); } catch {}
+      try { await deleteDoc(doc(db, 'ai_search_history', item.id)); } catch (e) { console.error('SearchHistory: Failed to clear history item', e); }
     }
     setHistory([]);
   };

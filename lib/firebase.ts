@@ -196,10 +196,33 @@ export async function setDoc(ref: DocRef, data: any, options?: { merge?: boolean
 }
 
 export async function updateDoc(ref: DocRef, data: any): Promise<void> {
- const snakeData = convertKeys(data, camelToSnake);
- const { error, count } = await (supabase.from(ref.table).update(snakeData).eq('id', ref.id) as any).select('id', { count: 'exact', head: true });
- if (error) throw new Error(`updateDoc failed: ${error.message}`);
- if (count === 0) throw new Error(`updateDoc failed: no rows matched (RLS or missing doc)`);
+  const snakeData: Record<string, any> = {};
+  const increments: Record<string, number> = {};
+  for (const [key, val] of Object.entries(data)) {
+    if (val && typeof val === 'object' && INCREMENT_MARKER in val) {
+      increments[camelToSnake(key)] = (val as any)[INCREMENT_MARKER];
+    } else {
+      snakeData[camelToSnake(key)] = val;
+    }
+  }
+
+  if (Object.keys(increments).length > 0) {
+    for (const [field, amount] of Object.entries(increments)) {
+      const { error } = await supabase.rpc('increment_field', { table_name: ref.table, row_id: ref.id, field_name: field, amount });
+      if (error) {
+        const { data: current } = await supabase.from(ref.table).select(field).eq('id', ref.id).maybeSingle();
+        const newVal = ((current as any)?.[field] || 0) + amount;
+        const { error: updateErr } = await supabase.from(ref.table).update({ [field]: newVal }).eq('id', ref.id);
+        if (updateErr) throw new Error(`updateDoc increment failed: ${updateErr.message}`);
+      }
+    }
+  }
+
+  if (Object.keys(snakeData).length > 0) {
+    const { error, count } = await (supabase.from(ref.table).update(snakeData).eq('id', ref.id) as any).select('id', { count: 'exact', head: true });
+    if (error) throw new Error(`updateDoc failed: ${error.message}`);
+    if (count === 0) throw new Error(`updateDoc failed: no rows matched (RLS or missing doc)`);
+  }
 }
 
 export async function deleteDoc(ref: DocRef): Promise<void> {
@@ -249,16 +272,17 @@ export function serverTimestamp(): string {
  return new Date().toISOString();
 }
 
-export function increment(n: number): number {
- return n;
+const INCREMENT_MARKER = '__increment__';
+export function increment(n: number): Record<string, number | string> {
+  return { [INCREMENT_MARKER]: n };
 }
 
 export function arrayUnion(...items: any[]): any[] {
- return items;
+  return items; // Handled via Supabase RPC in updateDoc
 }
 
 export function arrayRemove(...items: any[]): any[] {
- return items;
+  return items; // Handled via Supabase RPC in updateDoc
 }
 
 // ── Realtime subscriptions (onSnapshot) ──────────────────────────────────
@@ -346,25 +370,37 @@ export async function sendPasswordResetEmail(_authObj: any, email: string): Prom
  if (error) throw error;
 }
 
-export async function updateProfile(_user: any, profile: { displayName?: string; photoURL?: string }): Promise<void> {
- const updates: any = {};
- if (profile.displayName) updates.display_name = profile.displayName;
- if (profile.photoURL) updates.avatar_url = profile.photoURL;
- const { error } = await supabase.auth.updateUser({ data: updates });
- if (error) throw error;
+export async function updateProfile(user: any, profile: { displayName?: string; photoURL?: string }): Promise<void> {
+  const updates: any = {};
+  if (profile.displayName) updates.display_name = profile.displayName;
+  if (profile.photoURL) updates.avatar_url = profile.photoURL;
+  const { error } = await supabase.auth.updateUser({ data: updates });
+  if (error) throw error;
+  if (user?.uid) {
+    const syncData: any = {};
+    if (profile.displayName) syncData.name = profile.displayName;
+    if (profile.photoURL) syncData.profile_pic = profile.photoURL;
+    await supabase.from('users').update(syncData).eq('id', user.uid);
+  }
 }
 
 export async function sendEmailVerification(_user?: any): Promise<void> {
- // Supabase handles verification on signup; no-op here
+  const { error } = await supabase.auth.resend({ type: 'signup', email: _user?.email || '', options: { emailRedirectTo: window.location.origin } });
+  if (error) throw error;
 }
 
 export const EmailAuthProvider = {
  credential: (email: string, password: string) => ({ email, password }),
 };
 
-export async function reauthenticateWithCredential(_user: any, _credential: any): Promise<void> {
- const { error } = await supabase.auth.reauthenticate();
- if (error) throw error;
+export async function reauthenticateWithCredential(_user: any, credential: any): Promise<void> {
+  if (credential?.email && credential?.password) {
+    const { error } = await supabase.auth.signInWithPassword({ email: credential.email, password: credential.password });
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.auth.reauthenticate();
+    if (error) throw error;
+  }
 }
 
 export async function updatePassword(newPassword: string): Promise<void> {
