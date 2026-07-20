@@ -6,6 +6,7 @@ import { UserObject, CourseEnrollment, Course, TeacherApplication, UserMetrics }
 import { motion } from 'framer-motion';
 import { PLATFORM_COURSES } from '../data/platformCourses';
 import { getLastReadTimestamps } from '../lib/chatNotifications';
+import { getOrCreateMetrics, recordTimeSpent, updateConsistencyScore } from '../lib/userProgress';
 
 const getGreeting = () => {
   const h = new Date().getHours();
@@ -89,6 +90,7 @@ const Sparkline: React.FC = () => {
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState(auth.currentUser);
   const [userProfile, setUserProfile] = useState<UserObject | null>(null);
+  useEffect(() => { userIdRef.current = user?.uid ?? null; }, [user?.uid]);
   const [enrollments, setEnrollments] = useState<(CourseEnrollment & { courseData?: Course })[]>([]);
   const [teachingEnrollments, setTeachingEnrollments] = useState<(CourseEnrollment & { courseData?: Course })[]>([]);
   const [myApplications, setMyApplications] = useState<(TeacherApplication & { courseTitle?: string })[]>([]);
@@ -110,15 +112,36 @@ const Dashboard: React.FC = () => {
   const [userMetrics, setUserMetrics] = useState<UserMetrics[]>([]);
   const [downloadsCount, setDownloadsCount] = useState(0);
   const [allResources, setAllResources] = useState<any[]>([]);
-
   const [sessionTime, setSessionTime] = useState(0);
 
+  const accumulatedTime = useRef(0);
+  const enrolledCoursesRef = useRef<string[]>([]);
+  const userIdRef = useRef<string | null>(null);
+
   // Track session duration spent on site live
+  // Flush accumulated time to Firestore every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setSessionTime(prev => prev + 1);
+      setSessionTime(prev => {
+        accumulatedTime.current += 1;
+        return prev + 1;
+      });
     }, 1000);
-    return () => clearInterval(interval);
+
+    const flushInterval = setInterval(() => {
+      const timeToFlush = accumulatedTime.current;
+      const uid = userIdRef.current;
+      if (timeToFlush < 10 || !uid) return;
+      accumulatedTime.current = 0;
+      enrolledCoursesRef.current.forEach(courseId => {
+        recordTimeSpent(uid, courseId, timeToFlush).catch(() => {});
+      });
+    }, 30000);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(flushInterval);
+    };
   }, []);
 
   const formatSessionTime = (seconds: number) => {
@@ -194,6 +217,18 @@ const Dashboard: React.FC = () => {
             if (!cancelled) {
               setEnrollments(studentEnr);
               setTeachingEnrollments(teacherEnr);
+
+              // Initialize metrics and course refs for time tracking
+              const allCourseIds = [...new Set([...studentEnr.map((e: any) => e.courseId), ...teacherEnr.map((e: any) => e.courseId)])];
+              enrolledCoursesRef.current = allCourseIds;
+              if (u && allCourseIds.length > 0) {
+                allCourseIds.forEach(async (courseId: string) => {
+                  try {
+                    await getOrCreateMetrics(u.uid, courseId, 1);
+                    await updateConsistencyScore(u.uid, courseId);
+                  } catch {}
+                });
+              }
 
               // 24h block logic for first_class trial
               const lockedFc = studentEnr.find(e => {

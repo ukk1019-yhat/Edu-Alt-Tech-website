@@ -117,6 +117,32 @@ export async function recordTimeSpent(userId: string, courseId: string, seconds:
  });
 }
 
+export async function updateConsistencyScore(userId: string, courseId: string): Promise<void> {
+  const today = new Date().toISOString().slice(0, 10);
+  const dailyRef = doc(db, 'daily_activity', `${userId}_${courseId}_${today}`);
+  const dailySnap = await getDoc(dailyRef);
+  if (!dailySnap.exists()) {
+    await setDoc(dailyRef, { userId, courseId, date: today, active: true });
+  }
+
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const pastStr = sevenDaysAgo.toISOString().slice(0, 10);
+  const q = query(
+    collection(db, 'daily_activity'),
+    where('userId', '==', userId),
+    where('courseId', '==', courseId),
+    where('date', '>=', pastStr),
+    where('date', '<=', today)
+  );
+  const snap = await getDocs(q);
+  const activeDays = snap.size;
+  const consistencyScore = Math.min(100, Math.round((activeDays / 7) * 100));
+
+  const ref = doc(db, METRICS_COLLECTION, `${userId}_${courseId}`);
+  await updateDoc(ref, { consistencyScore, lastActivityAt: serverTimestamp() });
+}
+
 export async function getUserQuizAttempts(userId: string, courseId: string): Promise<QuizAttempt[]> {
  try {
  const q = query(
