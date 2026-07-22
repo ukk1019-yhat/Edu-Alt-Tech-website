@@ -86,7 +86,7 @@ export default async function handler(req: any, res: any) {
     return res.status(400).json({ error: 'Messages cannot be empty.' });
   }
 
-  const selectedModel = model || process.env.VITE_OPENROUTER_MODEL || 'z-ai/glm-4.5-air:free';
+  const selectedModel = model || process.env.OPENROUTER_MODEL || 'z-ai/glm-4.5-air:free';
 
   try {
     const response = await fetch(OPENROUTER_URL, {

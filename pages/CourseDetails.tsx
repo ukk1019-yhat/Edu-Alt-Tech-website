@@ -39,12 +39,12 @@ const CourseDetails: React.FC = () => {
    let base = { id: `pc-${idx}`, ...PLATFORM_COURSES[idx] } as Course;
    try {
    const { data: rows } = await db.from('platform_overrides').select('*').eq('id', courseId).maybeSingle();
-   if (rows?.data && !rows.data.__deleted) base = { ...base, ...rows.data };
-   } catch {}
-   try {
-   const localOverrides = JSON.parse(localStorage.getItem('platformCourseOverrides') || '{}');
-   if (localOverrides[courseId]) base = { ...base, ...localOverrides[courseId] };
-   } catch {}
+    if (rows?.data && !rows.data.__deleted) base = { ...base, ...rows.data };
+    } catch (e) { console.error('CourseDetails: Failed to fetch platform overrides from Supabase', e); }
+    try {
+    const localOverrides = JSON.parse(localStorage.getItem('platformCourseOverrides') || '{}');
+    if (localOverrides[courseId]) base = { ...base, ...localOverrides[courseId] };
+    } catch (e) { console.error('CourseDetails: Failed to parse local platform overrides', e); }
    setCourse(base);
    found = true;
    }

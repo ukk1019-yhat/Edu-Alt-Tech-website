@@ -877,7 +877,7 @@ const CourseClassroom: React.FC = () => {
        return;
       }
       if (user) {
-       (async () => { try { await db.from('user_downloads').insert({ user_id: user.uid, resource_title: res.title, resource_url: res.url, resource_type: 'link', course_id: courseId, downloaded_at: new Date().toISOString() }); } catch {} })();
+       (async () => { try { await db.from('user_downloads').insert({ user_id: user.uid, resource_title: res.title, resource_url: res.url, resource_type: 'link', course_id: courseId, downloaded_at: new Date().toISOString() }); } catch (e) { console.error('CourseClassroom: Failed to log resource download', e); } })();
       }
      }}
      className={`flex items-center gap-4 p-4 rounded-2xl border border-transparent transition-colors group ${

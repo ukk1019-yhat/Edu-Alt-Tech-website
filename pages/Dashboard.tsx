@@ -226,7 +226,7 @@ const Dashboard: React.FC = () => {
                   try {
                     await getOrCreateMetrics(u.uid, courseId, 1);
                     await updateConsistencyScore(u.uid, courseId);
-                  } catch {}
+                  } catch (e) { console.error('Dashboard: Failed to initialize metrics for course', e); }
                 });
               }
 

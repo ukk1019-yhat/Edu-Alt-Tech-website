@@ -13,7 +13,7 @@ export default async function handler(req: any, res: any) {
  return res.status(400).json({ error: 'Payment amount is required in the body' });
  }
 
-  const key_id = process.env.VITE_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID || '';
+  const key_id = process.env.RAZORPAY_KEY_ID || '';
  const key_secret = process.env.RAZORPAY_KEY_SECRET; // This MUST be set in Vercel Dashboard
 
  if (!key_secret) {

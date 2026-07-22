@@ -96,6 +96,8 @@ export const TEAM: TeamMember[] = [
  }
 ];
 
+export const ADMIN_EMAILS = ['ukkukk97@gmail.com', 'umakrishnakanthchokkapu15@gmail.com', 'akulasatyanarayana2006@gmail.com'];
+
 export const SERVICES: Service[] = [
  {
  title: "School Website Development",

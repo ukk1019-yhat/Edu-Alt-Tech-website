@@ -37,10 +37,11 @@ const Contact: React.FC = () => {
   setSending(true);
   try {
   // Only insert chat message — never update user profile
-  await db.from('chat_messages').insert({
+  await db.from('contact_messages').insert({
   user_id: currentUser.uid,
-  content: message.trim(),
-  role: 'user',
+  name: name.trim(),
+  email: email.trim(),
+  message: message.trim(),
   created_at: new Date().toISOString()
   });
 

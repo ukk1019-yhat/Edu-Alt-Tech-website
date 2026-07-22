@@ -43,7 +43,7 @@ const AI: React.FC = () => {
       try {
         const docSnap = await getDoc(doc(db, 'users', u.uid));
         if (docSnap.exists()) setUserProfile(docSnap.data());
-      } catch {}
+      } catch (e) { console.error('AI: Failed to load user profile', e); }
 
       try {
         const mQ = query(collection(db, 'user_metrics'), where('userId', '==', u.uid), limit(5));
@@ -56,7 +56,7 @@ const AI: React.FC = () => {
         if (contextParts.length > 0) {
           setMentorContext(`Student Progress Context:\n${contextParts.join('\n')}\n\nUse this to personalize your mentoring.`);
         }
-      } catch {}
+      } catch (e) { console.error('AI: Failed to load user metrics', e); }
 
       try {
         const cSnap = await getDocs(collection(db, 'courses'));
@@ -68,7 +68,7 @@ const AI: React.FC = () => {
         if (courses.length > 0) {
           setCourseCatalog(`Course Catalog:\n${courses.slice(0, 30).join('\n')}`);
         }
-      } catch {}
+      } catch (e) { console.error('AI: Failed to load course catalog', e); }
     });
     return () => unsub();
   }, [navigate]);
@@ -97,7 +97,7 @@ const AI: React.FC = () => {
         mode: modeUsed,
         createdAt: serverTimestamp()
       });
-    } catch {}
+    } catch (e) { console.error('AI: Failed to save search history', e); }
   };
 
   const loadHistory = async () => {
@@ -117,7 +117,7 @@ const AI: React.FC = () => {
         items.push({ id: d.id, ...data });
       });
       setHistoryItems(items);
-    } catch {}
+    } catch (e) { console.error('AI: Failed to load search history', e); }
     setHistoryLoading(false);
   };
 
@@ -175,7 +175,7 @@ const AI: React.FC = () => {
     try {
       await deleteDoc(doc(db, 'ai_search_history', id));
       setHistoryItems(prev => prev.filter(h => h.id !== id));
-    } catch {}
+    } catch (e) { console.error('AI: Failed to delete history item', e); }
   };
 
   const startNewChat = () => {

@@ -52,7 +52,7 @@ const AIAssistant: React.FC = () => {
           if (contextParts.length > 0) {
             setMentorContext(`Student Progress Context:\n${contextParts.join('\n')}\n\nUse this to personalize your mentoring.`);
           }
-        } catch {}
+        } catch (e) { console.error('AIAssistant: Failed to load user metrics', e); }
 
         try {
           const cSnap = await getDocs(collection(db, 'courses'));
@@ -64,7 +64,7 @@ const AIAssistant: React.FC = () => {
           if (courses.length > 0) {
             setCourseCatalog(`Course Catalog:\n${courses.slice(0, 30).join('\n')}`);
           }
-        } catch {}
+        } catch (e) { console.error('AIAssistant: Failed to load course catalog', e); }
       }
     });
     return () => unsub();
@@ -118,7 +118,7 @@ const AIAssistant: React.FC = () => {
         mode: modeUsed,
         createdAt: serverTimestamp()
       });
-    } catch {}
+    } catch (e) { console.error('AIAssistant: Failed to save search history', e); }
   };
 
   const handleSend = async (extendMsg?: string) => {

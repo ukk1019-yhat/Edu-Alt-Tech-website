@@ -102,7 +102,7 @@ const AdminDashboard: React.FC = () => {
   deleted.push(id);
   localStorage.setItem('platformCourseDeletions', JSON.stringify(deleted));
   }
-  } catch {}
+  } catch (e) { console.error('AdminDashboard: Failed to delete platform course from storage', e); }
   };
 
   const handleSaveCourse = async () => {
@@ -114,8 +114,8 @@ const AdminDashboard: React.FC = () => {
    const overrides = { ...courseForm, comingSoon: editingCourse.comingSoon };
    savePlatformOverrides({ ...JSON.parse(localStorage.getItem('platformCourseOverrides') || '{}'), [editingCourse.id]: overrides });
    setCoursesList(prev => applyPlatformOverrides(prev.map(c => c.id === editingCourse.id ? { ...c, ...courseForm } : c)));
-   try { await db.from('platform_overrides').upsert({ id: editingCourse.id, data: overrides }, { onConflict: 'id' }); } catch {}
-   toast.success('Platform course updated');
+    try { await db.from('platform_overrides').upsert({ id: editingCourse.id, data: overrides }, { onConflict: 'id' }); } catch (e) { console.error('AdminDashboard: Failed to sync platform course overrides to Supabase', e); }
+    toast.success('Platform course updated');
   } else {
   await updateDoc(doc(db, 'courses', editingCourse.id), courseForm);
   toast.success('Course updated');
@@ -137,8 +137,8 @@ const AdminDashboard: React.FC = () => {
    if (isPlatformCourse(courseId)) {
    deletePlatformFromStorage(courseId);
    setCoursesList(prev => prev.filter(c => c.id !== courseId));
-   try { await db.from('platform_overrides').upsert({ id: courseId, data: { __deleted: true } }, { onConflict: 'id' }); } catch {}
-   toast.success('Platform course hidden');
+    try { await db.from('platform_overrides').upsert({ id: courseId, data: { __deleted: true } }, { onConflict: 'id' }); } catch (e) { console.error('AdminDashboard: Failed to sync platform course deletion to Supabase', e); }
+    toast.success('Platform course hidden');
    return;
   }
   if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
@@ -157,7 +157,7 @@ const AdminDashboard: React.FC = () => {
     const overrides = { comingSoon: newVal };
     savePlatformOverrides({ ...JSON.parse(localStorage.getItem('platformCourseOverrides') || '{}'), [course.id]: overrides });
     setCoursesList(prev => applyPlatformOverrides(prev.map(c => c.id === course.id ? { ...c, ...overrides } : c)));
-    try { await db.from('platform_overrides').upsert({ id: course.id, data: overrides }, { onConflict: 'id' }); } catch {}
+    try { await db.from('platform_overrides').upsert({ id: course.id, data: overrides }, { onConflict: 'id' }); } catch (e) { console.error('AdminDashboard: Failed to sync coming soon toggle to Supabase', e); }
     toast.success(newVal ? 'Marked as Coming Soon' : 'Course released');
     return;
    }
