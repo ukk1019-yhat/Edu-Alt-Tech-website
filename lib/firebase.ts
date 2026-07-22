@@ -168,7 +168,8 @@ export async function getDocs(ref: CollectionRef | DocRef): Promise<{
  }
  if (ref.limitCount) query = query.limit(ref.limitCount);
 
- const { data, error: _error } = await query;
+ const { data, error: queryError } = await query;
+ if (queryError) console.error(`[getDocs] ${ref.table}:`, queryError.message);
  const docs = (data || []).map((d: any) => ({ data: () => convertKeys(d, snakeToCamel), id: d.id }));
  return { docs, forEach: (cb: any) => docs.forEach(cb), empty: docs.length === 0, size: docs.length };
 }
