@@ -29,7 +29,6 @@ export const STATIC_RESOURCES: ResourceItem[] = [
   { title: 'Data Structures & Algorithms Workbook', description: 'Practice problems with solutions for arrays, trees, graphs, DP, and sorting algorithms.', type: 'worksheet', category: 'Computer Science', premium: false, downloads: '976', url: 'https://drive.google.com/uc?export=download&id=1sample_dsa', classLevel: 'College/Engineering' },
   { title: 'Linear Algebra Quick Reference', description: 'Matrices, vector spaces, eigenvalues, and transformations — condensed for exam prep.', type: 'pdf', category: 'Mathematics', premium: false, downloads: '1,567', url: 'https://drive.google.com/uc?export=download&id=1sample_la', classLevel: 'College/Engineering' },
   { title: 'English Grammar Handbook', description: 'Complete grammar guide with tenses, voice, narration, and common error exercises.', type: 'notes', category: 'English', premium: false, downloads: '2,003', url: 'https://drive.google.com/uc?export=download&id=1sample_eng', classLevel: 'College/Engineering' },
-  { title: 'Probability & Statistics Cheat Sheet', description: 'Key distributions, hypothesis testing, and statistical inference formulas at a glance.', type: 'pdf', category: 'Mathematics', premium: true, downloads: '889', url: 'https://drive.google.com/uc?export=download&id=1sample_stats', classLevel: 'College/Engineering' },
   { title: 'Web Development Bootcamp Notes', description: 'HTML/CSS/JavaScript/React — full-stack web development concepts with code snippets.', type: 'notes', category: 'Computer Science', premium: false, downloads: '2,451', url: 'https://drive.google.com/uc?export=download&id=1sample_web', classLevel: 'College/Engineering' },
 ];
 
@@ -42,7 +41,6 @@ const SEED_RESOURCES: ResourceItem[] = [
   { title: 'Data Structures & Algorithms Workbook', description: 'Practice problems with solutions for arrays, trees, graphs, DP, and sorting algorithms.', type: 'worksheet', category: 'Computer Science', premium: false, downloads: '976', classLevel: 'College/Engineering' },
   { title: 'Linear Algebra Quick Reference', description: 'Matrices, vector spaces, eigenvalues, and transformations — condensed for exam prep.', type: 'pdf', category: 'Mathematics', premium: false, downloads: '1,567', classLevel: 'College/Engineering' },
   { title: 'English Grammar Handbook', description: 'Complete grammar guide with tenses, voice, narration, and common error exercises.', type: 'notes', category: 'English', premium: false, downloads: '2,003', classLevel: 'College/Engineering' },
-  { title: 'Probability & Statistics Cheat Sheet', description: 'Key distributions, hypothesis testing, and statistical inference formulas at a glance.', type: 'pdf', category: 'Mathematics', premium: true, downloads: '889', classLevel: 'College/Engineering' },
   { title: 'Web Development Bootcamp Notes', description: 'HTML/CSS/JavaScript/React — full-stack web development concepts with code snippets.', type: 'notes', category: 'Computer Science', premium: false, downloads: '2,451', classLevel: 'College/Engineering' },
 ];
 
