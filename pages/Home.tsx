@@ -101,8 +101,8 @@ const Home: React.FC = () => {
               className="flex flex-wrap gap-8 pt-8 border-t border-slate-200 :border-slate-700/60 max-w-xl"
             >
               {[
-                { value: 7, label: "Partner Schools" },
-                { value: 500, label: "Students Reached", suffix: "+" },
+                { value: 11, label: "Partner Schools" },
+                { value: 1000, label: "Students Reached", suffix: "+" },
                 { value: 100, label: "Study Resources", suffix: "+" },
                 { value: 98, label: "Satisfaction Rate", suffix: "%" },
               ].map((stat, i) => (
@@ -646,7 +646,7 @@ const Home: React.FC = () => {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { value: 7, label: "Partner Schools", icon: <Globe className="w-6 h-6" /> },
+              { value: 11, label: "Partner Schools", icon: <Globe className="w-6 h-6" /> },
               { value: 500, label: "Students Enrolled", icon: <Users className="w-6 h-6" />, suffix: "+" },
               { value: 100, label: "Learning Roadmaps", icon: <BookOpen className="w-6 h-6" />, suffix: "+" },
               { value: 20, label: "Expert Instructors", icon: <Star className="w-6 h-6" />, suffix: "+" },
